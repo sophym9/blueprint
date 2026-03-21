@@ -9,7 +9,14 @@ const YEAR_OPTIONS = [
   { value: 'senior', label: 'Senior', color: '#003087', textColor: '#ffffff' },
 ]
 
-export default function CreateMemoryForm({ onSubmit, onCancel }) {
+export default function CreateMemoryForm({
+  onSubmit,
+  onCancel,
+  anchor = null,
+  requireLogin = false,
+  onLoginRequired,
+  errorMessage = null,
+}) {
   const [memoryText, setMemoryText] = useState('')
   const [yearTag, setYearTag] = useState('senior')
   const [photoUrl, setPhotoUrl] = useState(null)
@@ -53,14 +60,16 @@ export default function CreateMemoryForm({ onSubmit, onCancel }) {
 
   return (
     <div
+      className="create-memory-form"
       style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(0,0,0,0.5)',
+        position: anchor ? 'absolute' : 'fixed',
+        inset: anchor ? 0 : 0,
+        background: anchor ? 'transparent' : 'rgba(0,0,0,0.5)',
         display: 'flex',
-        alignItems: 'flex-end',
-        justifyContent: 'center',
+        alignItems: anchor ? 'stretch' : 'flex-end',
+        justifyContent: anchor ? 'stretch' : 'center',
         zIndex: 90,
+        pointerEvents: anchor ? 'none' : 'auto',
       }}
       onClick={onCancel}
     >
@@ -69,29 +78,50 @@ export default function CreateMemoryForm({ onSubmit, onCancel }) {
         onClick={e => e.stopPropagation()}
         onSubmit={handleSubmit}
         style={{
+          position: anchor ? 'absolute' : 'relative',
+          left: anchor ? `${anchor.pin_x}%` : undefined,
+          top: anchor ? `${anchor.pin_y}%` : undefined,
+          transform: anchor ? 'translate(18px, -22px)' : undefined,
           background: '#111827',
           border: '1px solid rgba(201,168,76,0.3)',
           borderTop: '2px solid #C9A84C',
-          borderRadius: '12px 12px 0 0',
-          width: '100%',
-          maxWidth: '560px',
+          borderRadius: anchor ? '12px' : '12px 12px 0 0',
+          width: anchor ? '320px' : '100%',
+          maxWidth: anchor ? '320px' : '560px',
           padding: '20px',
           display: 'flex',
           flexDirection: 'column',
           gap: '16px',
+          pointerEvents: 'auto',
+          boxShadow: '0 18px 40px rgba(0,0,0,0.45)',
         }}
       >
-        {/* Handle bar */}
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <div style={{ width: '40px', height: '4px', background: '#C9A84C', borderRadius: '2px', opacity: 0.5 }} />
-        </div>
+        {!anchor ? (
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <div style={{ width: '40px', height: '4px', background: '#C9A84C', borderRadius: '2px', opacity: 0.5 }} />
+          </div>
+        ) : null}
 
         <h3
           className="font-display"
           style={{ color: '#C9A84C', fontSize: '20px', letterSpacing: '0.08em', margin: 0 }}
         >
-          PIN A MEMORY
+          DROP A MEMORY
         </h3>
+
+        {requireLogin ? (
+          <p
+            style={{
+              margin: 0,
+              color: '#D1D5DB',
+              fontSize: '13px',
+              lineHeight: '1.5',
+              fontFamily: "'DM Sans', sans-serif",
+            }}
+          >
+            Log in first to save a memory at this spot.
+          </p>
+        ) : null}
 
         {/* Memory text */}
         <textarea
@@ -99,6 +129,7 @@ export default function CreateMemoryForm({ onSubmit, onCancel }) {
           onChange={e => setMemoryText(e.target.value)}
           placeholder="What happened here? Tell your story..."
           rows={3}
+          disabled={requireLogin}
           style={{
             background: 'rgba(255,255,255,0.04)',
             border: '1px solid rgba(255,255,255,0.1)',
@@ -126,6 +157,7 @@ export default function CreateMemoryForm({ onSubmit, onCancel }) {
                 key={opt.value}
                 type="button"
                 onClick={() => setYearTag(opt.value)}
+                disabled={requireLogin}
                 style={{
                   background: yearTag === opt.value ? opt.color : 'transparent',
                   border: `1px solid ${opt.color}`,
@@ -171,7 +203,7 @@ export default function CreateMemoryForm({ onSubmit, onCancel }) {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
+                disabled={uploading || requireLogin}
                 style={{
                   background: 'rgba(255,255,255,0.04)',
                   border: '1px dashed rgba(255,255,255,0.2)',
@@ -190,7 +222,20 @@ export default function CreateMemoryForm({ onSubmit, onCancel }) {
         </div>
 
         {/* Audio recorder */}
-        <AudioRecorder onAudioUrl={url => setAudioUrl(url)} />
+        {!requireLogin ? <AudioRecorder onAudioUrl={url => setAudioUrl(url)} /> : null}
+
+        {errorMessage ? (
+          <p
+            style={{
+              margin: 0,
+              color: '#FCA5A5',
+              fontSize: '12px',
+              fontFamily: "'DM Sans', sans-serif",
+            }}
+          >
+            {errorMessage}
+          </p>
+        ) : null}
 
         {/* Action buttons */}
         <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
@@ -210,25 +255,46 @@ export default function CreateMemoryForm({ onSubmit, onCancel }) {
           >
             Cancel
           </button>
-          <button
-            type="submit"
-            disabled={submitting || (!memoryText && !photoUrl && !audioUrl)}
-            className="font-display"
-            style={{
-              background: submitting ? '#4B5563' : 'linear-gradient(135deg, #C9A84C, #E8C56A)',
-              border: 'none',
-              color: '#0A0E1A',
-              borderRadius: '6px',
-              padding: '10px 24px',
-              cursor: submitting ? 'wait' : 'pointer',
-              fontSize: '16px',
-              letterSpacing: '0.08em',
-              boxShadow: '0 0 12px rgba(201,168,76,0.3)',
-              transition: 'all 0.15s',
-            }}
-          >
-            {submitting ? 'PINNING...' : 'PIN IT'}
-          </button>
+          {requireLogin ? (
+            <button
+              type="button"
+              onClick={onLoginRequired}
+              className="font-display"
+              style={{
+                background: 'linear-gradient(135deg, #C9A84C, #E8C56A)',
+                border: 'none',
+                color: '#0A0E1A',
+                borderRadius: '6px',
+                padding: '10px 24px',
+                cursor: 'pointer',
+                fontSize: '16px',
+                letterSpacing: '0.08em',
+                boxShadow: '0 0 12px rgba(201,168,76,0.3)',
+              }}
+            >
+              LOG IN
+            </button>
+          ) : (
+            <button
+              type="submit"
+              disabled={submitting || (!memoryText && !photoUrl && !audioUrl)}
+              className="font-display"
+              style={{
+                background: submitting ? '#4B5563' : 'linear-gradient(135deg, #C9A84C, #E8C56A)',
+                border: 'none',
+                color: '#0A0E1A',
+                borderRadius: '6px',
+                padding: '10px 24px',
+                cursor: submitting ? 'wait' : 'pointer',
+                fontSize: '16px',
+                letterSpacing: '0.08em',
+                boxShadow: '0 0 12px rgba(201,168,76,0.3)',
+                transition: 'all 0.15s',
+              }}
+            >
+              {submitting ? 'PINNING...' : 'PIN IT'}
+            </button>
+          )}
         </div>
       </form>
     </div>

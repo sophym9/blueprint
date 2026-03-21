@@ -2,11 +2,45 @@ import { useState } from 'react'
 import { MAP_W, MAP_H } from '../../lib/mapConfig'
 import { LANDMARKS } from '../../lib/landmarks'
 
+function getNearestLandmark(mapX, mapY) {
+  let nearestId = null
+  let nearestDistance = Number.POSITIVE_INFINITY
+
+  for (const [id, landmark] of Object.entries(LANDMARKS)) {
+    const dx = landmark.mapX - mapX
+    const dy = landmark.mapY - mapY
+    const distance = Math.hypot(dx, dy)
+
+    if (distance < nearestDistance) {
+      nearestDistance = distance
+      nearestId = id
+    }
+  }
+
+  return nearestId
+}
+
 export default function WorldView({ onSelectLandmark, memoryCounts = {} }) {
   const [hovered, setHovered] = useState(null)
 
+  function handleMapClick(event) {
+    const rect = event.currentTarget.getBoundingClientRect()
+    const mapX = ((event.clientX - rect.left) / rect.width) * 100
+    const mapY = ((event.clientY - rect.top) / rect.height) * 100
+    const nearestLandmarkId = getNearestLandmark(mapX, mapY)
+
+    if (!nearestLandmarkId) {
+      return
+    }
+
+    onSelectLandmark(nearestLandmarkId, { x: mapX, y: mapY })
+  }
+
   return (
-    <div style={{ position: 'relative', width: `${MAP_W}px`, height: `${MAP_H}px`, flexShrink: 0 }}>
+    <div
+      onClick={handleMapClick}
+      style={{ position: 'relative', width: `${MAP_W}px`, height: `${MAP_H}px`, flexShrink: 0, cursor: 'pointer' }}
+    >
       {/* Actual Duke campus map */}
       <img
         src="/duke-campus-map.png"
@@ -22,8 +56,6 @@ export default function WorldView({ onSelectLandmark, memoryCounts = {} }) {
         return (
           <div
             key={id}
-            onClick={e => { e.stopPropagation(); onSelectLandmark(id) }}
-            onPointerDown={e => e.stopPropagation()}
             onMouseEnter={() => setHovered(id)}
             onMouseLeave={() => setHovered(null)}
             style={{

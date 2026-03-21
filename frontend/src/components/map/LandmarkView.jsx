@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { LANDMARKS } from '../../lib/landmarks'
 import { useMemories } from '../../hooks/useMemories'
 import MapPin from './MapPin'
@@ -7,54 +8,81 @@ import CreateMemoryForm from '../memory/CreateMemoryForm'
 
 const ZOOM_SCALE = 2.35
 
-export default function LandmarkView({ landmarkId, user, onPointsEarned }) {
+export default function LandmarkView({
+  landmarkId,
+  user,
+  onPointsEarned,
+  initialPendingPin = null,
+  onComposerConsumed,
+  focusPoint = null,
+}) {
   const landmark = LANDMARKS[landmarkId]
+  const navigate = useNavigate()
   const { memories, loading, fetchMemories, createMemory, addReaction, removeReaction } = useMemories()
   const [selectedMemory, setSelectedMemory] = useState(null)
   const [pendingPin, setPendingPin] = useState(null) // { pin_x, pin_y }
-  const [isDropMode, setIsDropMode] = useState(false)
+  const [submitError, setSubmitError] = useState(null)
   const containerRef = useRef(null)
 
   useEffect(() => {
     fetchMemories({ landmarkId })
   }, [landmarkId])
 
+  useEffect(() => {
+    if (!initialPendingPin) return
+    setSelectedMemory(null)
+    setSubmitError(null)
+    setPendingPin(initialPendingPin)
+    onComposerConsumed?.()
+  }, [initialPendingPin, onComposerConsumed])
+
   function handleContainerClick(e) {
     if (
       e.target.closest('.map-pin') ||
       e.target.closest('.memory-modal') ||
-      e.target.closest('.drop-memory-btn')
+      e.target.closest('.create-memory-form')
     ) {
       return
     }
-    if (!user || !isDropMode) return
-
     const rect = containerRef.current.getBoundingClientRect()
     const pin_x = ((e.clientX - rect.left) / rect.width) * 100
     const pin_y = ((e.clientY - rect.top) / rect.height) * 100
+    setSubmitError(null)
     setPendingPin({ pin_x, pin_y })
-    setIsDropMode(false)
   }
 
   async function handleCreateMemory(formData) {
-    const data = {
-      ...formData,
-      landmark_id: landmarkId,
-      region: landmark.region,
-      pin_x: pendingPin.pin_x,
-      pin_y: pendingPin.pin_y,
-    }
-    const newMemory = await createMemory(data)
-    setPendingPin(null)
-    if (newMemory.points_earned && onPointsEarned) {
-      onPointsEarned(newMemory.points_earned)
+    try {
+      const data = {
+        ...formData,
+        landmark_id: landmarkId,
+        region: landmark.region,
+        pin_x: pendingPin.pin_x,
+        pin_y: pendingPin.pin_y,
+      }
+      const newMemory = await createMemory(data)
+      setSubmitError(null)
+      setPendingPin(null)
+      setSelectedMemory(newMemory)
+      if (newMemory.points_earned && onPointsEarned) {
+        onPointsEarned(newMemory.points_earned)
+      }
+    } catch (error) {
+      const status = error?.response?.status
+      setSubmitError(
+        status === 401 || status === 422
+          ? 'Log in first to pin a memory.'
+          : 'Could not pin this memory. Please try again.'
+      )
     }
   }
 
   if (!landmark) return null
 
-  const imageLeft = `${50 - landmark.mapX * ZOOM_SCALE}%`
-  const imageTop = `${50 - landmark.mapY * ZOOM_SCALE}%`
+  const mapFocusX = focusPoint?.x ?? landmark.mapX
+  const mapFocusY = focusPoint?.y ?? landmark.mapY
+  const imageLeft = `${50 - mapFocusX * ZOOM_SCALE}%`
+  const imageTop = `${50 - mapFocusY * ZOOM_SCALE}%`
 
   return (
     <div
@@ -66,7 +94,7 @@ export default function LandmarkView({ landmarkId, user, onPointsEarned }) {
         height: '100%',
         overflow: 'hidden',
         background: '#1a1208',
-        cursor: user && isDropMode ? 'crosshair' : 'default',
+        cursor: user ? 'crosshair' : 'default',
       }}
     >
       {/* Zoomed campus map */}
@@ -86,63 +114,6 @@ export default function LandmarkView({ landmarkId, user, onPointsEarned }) {
         }}
         draggable={false}
       />
-
-      <div
-        style={{
-          position: 'absolute',
-          top: '16px',
-          right: '16px',
-          zIndex: 20,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-        }}
-      >
-        {isDropMode && user && (
-          <span
-            style={{
-              background: 'rgba(10,14,26,0.82)',
-              border: '1px solid rgba(201,168,76,0.3)',
-              borderRadius: '6px',
-              padding: '6px 10px',
-              fontSize: '12px',
-              color: '#9CA3AF',
-              fontFamily: "'DM Sans', sans-serif",
-            }}
-          >
-            Click map to place
-          </span>
-        )}
-
-        {user && (
-          <button
-            type="button"
-            className="drop-memory-btn"
-            onClick={(e) => {
-              e.stopPropagation()
-              setSelectedMemory(null)
-              setPendingPin(null)
-              setIsDropMode((current) => !current)
-            }}
-            style={{
-              background: isDropMode
-                ? 'linear-gradient(135deg, #E8C56A, #C9A84C)'
-                : 'rgba(10,14,26,0.88)',
-              border: '1px solid #C9A84C',
-              color: isDropMode ? '#0A0E1A' : '#C9A84C',
-              borderRadius: '8px',
-              padding: '8px 14px',
-              cursor: 'pointer',
-              fontSize: '13px',
-              fontWeight: 700,
-              fontFamily: "'DM Sans', sans-serif",
-              boxShadow: isDropMode ? '0 0 14px rgba(201,168,76,0.4)' : 'none',
-            }}
-          >
-            Drop memory
-          </button>
-        )}
-      </div>
 
       {/* Landmark tag */}
       <div
@@ -165,11 +136,6 @@ export default function LandmarkView({ landmarkId, user, onPointsEarned }) {
           {landmark.realName}
         </div>
       </div>
-
-      {/* Drop memory hint if logged in */}
-      {user && (
-        <div />
-      )}
 
       {/* Memory pins */}
       {memories.map(memory => (
@@ -216,7 +182,14 @@ export default function LandmarkView({ landmarkId, user, onPointsEarned }) {
       {pendingPin && !selectedMemory && (
         <CreateMemoryForm
           onSubmit={handleCreateMemory}
-          onCancel={() => setPendingPin(null)}
+          onCancel={() => {
+            setPendingPin(null)
+            setSubmitError(null)
+          }}
+          anchor={pendingPin}
+          requireLogin={!user}
+          onLoginRequired={() => navigate('/login')}
+          errorMessage={submitError}
         />
       )}
     </div>

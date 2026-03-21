@@ -8,6 +8,8 @@ import MapControls from './MapControls'
 export default function DukeWorldMap({ user, onPointsEarned, memoryCounts = {} }) {
   const [zoomLevel, setZoomLevel] = useState(ZOOM_LEVELS.WORLD)
   const [activeLandmark, setActiveLandmark] = useState(null)
+  const [composerSeedPoint, setComposerSeedPoint] = useState(null)
+  const [focusPoint, setFocusPoint] = useState(null)
   const { cssTransform, isDragging, handlers, makeWheelHandler, zoomTo, transform } = useMapTransform({ initialScale: 0.85 })
   const wrapperRef = useRef(null)
 
@@ -20,9 +22,15 @@ export default function DukeWorldMap({ user, onPointsEarned, memoryCounts = {} }
     return () => el.removeEventListener('wheel', onWheel)
   }, [makeWheelHandler])
 
-  function handleSelectLandmark(landmarkKey) {
+  function handleSelectLandmark(landmarkKey, clickedPoint = null) {
     setActiveLandmark(landmarkKey)
     setZoomLevel(ZOOM_LEVELS.LANDMARK)
+    setComposerSeedPoint(
+      clickedPoint
+        ? { pin_x: clickedPoint.x, pin_y: clickedPoint.y }
+        : { pin_x: 50, pin_y: 50 },
+    )
+    setFocusPoint(clickedPoint)
     zoomTo(1, 0, 0)
   }
 
@@ -30,6 +38,8 @@ export default function DukeWorldMap({ user, onPointsEarned, memoryCounts = {} }
     if (zoomLevel === ZOOM_LEVELS.LANDMARK) {
       setZoomLevel(ZOOM_LEVELS.WORLD)
       setActiveLandmark(null)
+      setComposerSeedPoint(null)
+      setFocusPoint(null)
       zoomTo(0.85, 0, 0)
     }
   }
@@ -66,6 +76,9 @@ export default function DukeWorldMap({ user, onPointsEarned, memoryCounts = {} }
             landmarkId={activeLandmark}
             user={user}
             onPointsEarned={onPointsEarned}
+            initialPendingPin={composerSeedPoint}
+            onComposerConsumed={() => setComposerSeedPoint(null)}
+            focusPoint={focusPoint}
           />
         </div>
       ) : (
