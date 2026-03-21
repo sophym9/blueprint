@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <rect width="400" height="300" fill="#FDF6E3"/>
+  <rect x="0" y="235" width="400" height="65" fill="#D4C49A" opacity="0.4"/>
+  <!-- Base building — fortified junction feel -->
+  <rect x="90" y="110" width="220" height="130" fill="#8B6914" opacity="0.8" rx="2"/>
+  <rect x="92" y="112" width="216" height="126" fill="#C9A84C" opacity="0.1"/>
+  <!-- Corner towers -->
+  <rect x="75" y="95" width="40" height="145" fill="#7A5C2E" rx="1"/>
+  <rect x="285" y="95" width="40" height="145" fill="#7A5C2E" rx="1"/>
+  <rect x="73" y="88" width="44" height="12" fill="#5C3D11" rx="1"/>
+  <rect x="283" y="88" width="44" height="12" fill="#5C3D11" rx="1"/>
+  <!-- Crenellations on towers -->
+  <g fill="#5C3D11">
+    <rect x="73" y="80" width="8" height="10" rx="1"/>
+    <rect x="85" y="80" width="8" height="10" rx="1"/>
+    <rect x="97" y="80" width="8" height="10" rx="1"/>
+    <rect x="283" y="80" width="8" height="10" rx="1"/>
+    <rect x="295" y="80" width="8" height="10" rx="1"/>
+    <rect x="307" y="80" width="8" height="10" rx="1"/>
+  </g>
+  <!-- Flags from all regions -->
+  <line x1="95" y1="88" x2="95" y2="60" stroke="#5C3D11" stroke-width="2"/>
+  <polygon points="95,60 115,68 95,76" fill="#003087"/>
+  <line x1="305" y1="88" x2="305" y2="60" stroke="#5C3D11" stroke-width="2"/>
+  <polygon points="305,60 325,68 305,76" fill="#4ADE80"/>
+  <line x1="200" y1="108" x2="200" y2="80" stroke="#5C3D11" stroke-width="2"/>
+  <polygon points="200,80 220,88 200,96" fill="#FACC15"/>
+  <!-- Windows -->
+  <g fill="#FACC15" opacity="0.65">
+    <rect x="110" y="130" width="30" height="25" rx="3"/>
+    <rect x="155" y="130" width="30" height="25" rx="3"/>
+    <rect x="215" y="130" width="30" height="25" rx="3"/>
+    <rect x="260" y="130" width="30" height="25" rx="3"/>
+  </g>
+  <!-- Arched entrance -->
+  <path d="M 175 235 Q 175 205 200 205 Q 225 205 225 235 Z" fill="#3A2000"/>
+  <rect x="175" y="218" width="50" height="17" fill="#3A2000"/>
+  <path d="M 177 235 Q 177 207 200 207 Q 223 207 223 235 Z" fill="none" stroke="#C9A84C" stroke-width="1.5"/>
+  <!-- Market stalls / banners -->
+  <g opacity="0.7">
+    <line x1="115" y1="112" x2="115" y2="128" stroke="#C9A84C" stroke-width="1.5"/>
+    <polygon points="115,112 130,118 115,124" fill="#003087"/>
+    <line x1="270" y1="112" x2="270" y2="128" stroke="#C9A84C" stroke-width="1.5"/>
+    <polygon points="270,112 285,118 270,124" fill="#FACC15"/>
+  </g>
+  <!-- Drop shadow -->
+  <ellipse cx="200" cy="248" rx="140" ry="7" fill="#5C3D11" opacity="0.09"/>
+  <!-- Label -->
+  <text x="200" y="272" font-family="'IM Fell English', serif" font-size="15" fill="#8B6914" text-anchor="middle">The Crossroads Keep</text>
+  <text x="200" y="286" font-family="'DM Sans', sans-serif" font-size="10" fill="#8B8B7A" text-anchor="middle">Bryan Center</text>
+</svg>

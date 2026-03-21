@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <rect width="400" height="300" fill="#F5E6C8"/>
+  <!-- Sky gradient -->
+  <rect x="0" y="0" width="400" height="160" fill="#E8D0A0" opacity="0.3"/>
+  <!-- Ground -->
+  <rect x="0" y="220" width="400" height="80" fill="#C8B87A" opacity="0.4"/>
+  <!-- Cobblestone plaza -->
+  <rect x="100" y="200" width="200" height="60" fill="#8B8B7A" opacity="0.2" rx="2"/>
+  <g stroke="#8B8B7A" stroke-width="0.5" opacity="0.3">
+    <line x1="100" y1="215" x2="300" y2="215"/>
+    <line x1="100" y1="228" x2="300" y2="228"/>
+    <line x1="100" y1="241" x2="300" y2="241"/>
+    <line x1="130" y1="200" x2="130" y2="260"/>
+    <line x1="165" y1="200" x2="165" y2="260"/>
+    <line x1="200" y1="200" x2="200" y2="260"/>
+    <line x1="235" y1="200" x2="235" y2="260"/>
+    <line x1="270" y1="200" x2="270" y2="260"/>
+  </g>
+  <!-- Central fountain -->
+  <ellipse cx="200" cy="190" rx="35" ry="15" fill="#7EC8E3" opacity="0.6" stroke="#C9A84C" stroke-width="1.5"/>
+  <ellipse cx="200" cy="190" rx="20" ry="8" fill="#5BA8C8" opacity="0.5"/>
+  <circle cx="200" cy="183" r="3" fill="#F5E6C8"/>
+  <!-- Fountain water jets -->
+  <line x1="200" y1="183" x2="193" y2="174" stroke="#7EC8E3" stroke-width="1.5" opacity="0.7"/>
+  <line x1="200" y1="183" x2="207" y2="174" stroke="#7EC8E3" stroke-width="1.5" opacity="0.7"/>
+  <line x1="200" y1="183" x2="200" y2="172" stroke="#7EC8E3" stroke-width="2" opacity="0.8"/>
+  <!-- Stone buildings around quad (simple facades) -->
+  <!-- Left building -->
+  <rect x="20" y="120" width="80" height="110" fill="#003087" opacity="0.8" rx="1"/>
+  <rect x="22" y="122" width="76" height="106" fill="#0A3A9A" opacity="0.15"/>
+  <g fill="#C9A84C" opacity="0.55">
+    <rect x="30" y="135" width="15" height="20" rx="2"/>
+    <rect x="55" y="135" width="15" height="20" rx="2"/>
+    <rect x="30" y="165" width="15" height="20" rx="2"/>
+    <rect x="55" y="165" width="15" height="20" rx="2"/>
+  </g>
+  <polygon points="20,120 60,90 100,120" fill="#003087" opacity="0.9"/>
+  <!-- Right building -->
+  <rect x="300" y="120" width="80" height="110" fill="#003087" opacity="0.8" rx="1"/>
+  <rect x="302" y="122" width="76" height="106" fill="#0A3A9A" opacity="0.15"/>
+  <g fill="#C9A84C" opacity="0.55">
+    <rect x="312" y="135" width="15" height="20" rx="2"/>
+    <rect x="337" y="135" width="15" height="20" rx="2"/>
+    <rect x="312" y="165" width="15" height="20" rx="2"/>
+    <rect x="337" y="165" width="15" height="20" rx="2"/>
+  </g>
+  <polygon points="300,120 340,90 380,120" fill="#003087" opacity="0.9"/>
+  <!-- Back building -->
+  <rect x="130" y="100" width="140" height="90" fill="#003087" opacity="0.75" rx="1"/>
+  <polygon points="130,100 200,70 270,100" fill="#003087" opacity="0.85"/>
+  <g fill="#C9A84C" opacity="0.5">
+    <rect x="145" y="120" width="20" height="25" rx="2"/>
+    <rect x="190" y="120" width="20" height="25" rx="2"/>
+    <rect x="235" y="120" width="20" height="25" rx="2"/>
+  </g>
+  <!-- Pathway crosses -->
+  <line x1="200" y1="220" x2="200" y2="260" stroke="#C9A84C" stroke-width="3" opacity="0.25"/>
+  <line x1="60" y1="230" x2="340" y2="230" stroke="#C9A84C" stroke-width="3" opacity="0.25"/>
+  <!-- Drop shadow -->
+  <ellipse cx="200" cy="255" rx="160" ry="8" fill="#8B8B7A" opacity="0.08"/>
+  <!-- Label -->
+  <text x="200" y="278" font-family="'IM Fell English', serif" font-size="15" fill="#003087" text-anchor="middle">Cobblestone Commons</text>
+  <text x="200" y="292" font-family="'DM Sans', sans-serif" font-size="10" fill="#8B8B7A" text-anchor="middle">The Quad</text>
+</svg>

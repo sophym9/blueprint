@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <rect width="400" height="300" fill="#F5E6C8"/>
+  <!-- Ground -->
+  <rect x="0" y="240" width="400" height="60" fill="#D4C49A" opacity="0.6"/>
+  <!-- Steps -->
+  <rect x="130" y="232" width="140" height="8" fill="#8B8B7A" rx="1"/>
+  <rect x="140" y="240" width="120" height="6" fill="#7A7A6A" rx="1"/>
+  <!-- Main nave -->
+  <rect x="150" y="140" width="100" height="100" fill="#003087"/>
+  <rect x="152" y="142" width="96" height="96" fill="#0A3A9A" opacity="0.3"/>
+  <!-- Side wings -->
+  <rect x="100" y="175" width="55" height="65" fill="#003087" opacity="0.85"/>
+  <rect x="245" y="175" width="55" height="65" fill="#003087" opacity="0.85"/>
+  <!-- Gothic arches on nave -->
+  <path d="M 160 180 Q 160 155 175 155 Q 190 155 190 180 Z" fill="#C9A84C" opacity="0.5"/>
+  <path d="M 210 180 Q 210 155 225 155 Q 240 155 240 180 Z" fill="#C9A84C" opacity="0.5"/>
+  <!-- Central tower -->
+  <rect x="170" y="60" width="60" height="90" fill="#003087"/>
+  <rect x="172" y="62" width="56" height="86" fill="#0A3A9A" opacity="0.2"/>
+  <!-- Spire -->
+  <polygon points="200,5 185,60 215,60" fill="#003087"/>
+  <polygon points="200,5 187,60 213,60" fill="#1A4AAA" opacity="0.4"/>
+  <!-- Cross at top -->
+  <line x1="200" y1="5" x2="200" y2="30" stroke="#C9A84C" stroke-width="2.5"/>
+  <line x1="194" y1="15" x2="206" y2="15" stroke="#C9A84C" stroke-width="2.5"/>
+  <!-- Rose window -->
+  <circle cx="200" cy="115" r="18" fill="#C9A84C" opacity="0.7"/>
+  <circle cx="200" cy="115" r="12" fill="none" stroke="#F5E6C8" stroke-width="1.5"/>
+  <circle cx="200" cy="115" r="5" fill="#F5E6C8" opacity="0.6"/>
+  <!-- Spoke lines in window -->
+  <line x1="200" y1="97" x2="200" y2="133" stroke="#F5E6C8" stroke-width="1" opacity="0.5"/>
+  <line x1="182" y1="115" x2="218" y2="115" stroke="#F5E6C8" stroke-width="1" opacity="0.5"/>
+  <line x1="187" y1="102" x2="213" y2="128" stroke="#F5E6C8" stroke-width="1" opacity="0.5"/>
+  <line x1="213" y1="102" x2="187" y2="128" stroke="#F5E6C8" stroke-width="1" opacity="0.5"/>
+  <!-- Doorway -->
+  <path d="M 185 240 Q 185 215 200 215 Q 215 215 215 240 Z" fill="#1A0A4A"/>
+  <rect x="185" y="225" width="30" height="15" fill="#1A0A4A"/>
+  <!-- Buttresses -->
+  <polygon points="130,240 150,175 160,175 155,240" fill="#003087" opacity="0.6"/>
+  <polygon points="270,240 250,175 240,175 245,240" fill="#003087" opacity="0.6"/>
+  <!-- Gold drop shadow -->
+  <ellipse cx="200" cy="248" rx="80" ry="8" fill="#C9A84C" opacity="0.12"/>
+  <!-- Label -->
+  <text x="200" y="278" font-family="'IM Fell English', serif" font-size="15" fill="#003087" text-anchor="middle">The Grand Spire</text>
+  <text x="200" y="292" font-family="'DM Sans', sans-serif" font-size="10" fill="#8B8B7A" text-anchor="middle">Duke Chapel</text>
+</svg>

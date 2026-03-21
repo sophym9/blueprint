@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <rect width="400" height="300" fill="#F5E6C8"/>
+  <rect x="0" y="235" width="400" height="65" fill="#C8AA70" opacity="0.4"/>
+  <!-- Main inn building -->
+  <rect x="100" y="120" width="200" height="120" fill="#7A5C2E" rx="2"/>
+  <rect x="102" y="122" width="196" height="116" fill="#A0784A" opacity="0.2"/>
+  <!-- Thatched roof -->
+  <polygon points="80,120 200,60 320,120" fill="#8B6914"/>
+  <polygon points="82,120 200,63 318,120" fill="#C9A84C" opacity="0.15"/>
+  <!-- Chimney with smoke -->
+  <rect x="240" y="65" width="20" height="55" fill="#8B8B7A"/>
+  <rect x="236" y="62" width="28" height="8" fill="#6B6B5A" rx="1"/>
+  <!-- Smoke -->
+  <path d="M 250 62 Q 245 45 252 30 Q 258 15 250 5" stroke="#C0C0C0" stroke-width="4" fill="none" opacity="0.4" stroke-linecap="round"/>
+  <path d="M 255 62 Q 262 48 256 35" stroke="#C0C0C0" stroke-width="3" fill="none" opacity="0.3" stroke-linecap="round"/>
+  <!-- Windows (warm glow) -->
+  <rect x="115" y="140" width="40" height="35" fill="#FACC15" opacity="0.7" rx="3"/>
+  <rect x="117" y="142" width="36" height="31" fill="#FFA500" opacity="0.3" rx="2"/>
+  <rect x="245" y="140" width="40" height="35" fill="#FACC15" opacity="0.7" rx="3"/>
+  <rect x="247" y="142" width="36" height="31" fill="#FFA500" opacity="0.3" rx="2"/>
+  <!-- Warm glow from windows -->
+  <ellipse cx="135" cy="157" rx="30" ry="25" fill="#FACC15" opacity="0.08"/>
+  <ellipse cx="265" cy="157" rx="30" ry="25" fill="#FACC15" opacity="0.08"/>
+  <!-- Hanging wooden sign -->
+  <line x1="170" y1="110" x2="170" y2="130" stroke="#5C3D11" stroke-width="2"/>
+  <line x1="230" y1="110" x2="230" y2="130" stroke="#5C3D11" stroke-width="2"/>
+  <line x1="165" y1="110" x2="235" y2="110" stroke="#5C3D11" stroke-width="2"/>
+  <rect x="165" y="128" width="70" height="24" fill="#5C3D11" rx="3"/>
+  <text x="200" y="144" font-family="'IM Fell English', serif" font-size="10" fill="#C9A84C" text-anchor="middle">OPEN</text>
+  <!-- Door -->
+  <path d="M 185 235 Q 185 210 200 210 Q 215 210 215 235 Z" fill="#3A2000"/>
+  <rect x="185" y="218" width="30" height="17" fill="#3A2000"/>
+  <circle cx="211" cy="228" r="2" fill="#C9A84C"/>
+  <!-- Front steps -->
+  <rect x="170" y="235" width="60" height="6" fill="#8B8B7A" opacity="0.5" rx="1"/>
+  <!-- Lanterns on sides -->
+  <rect x="103" y="132" width="8" height="10" fill="#C9A84C" opacity="0.7" rx="1"/>
+  <ellipse cx="107" cy="128" rx="5" ry="5" fill="#FACC15" opacity="0.5"/>
+  <rect x="289" y="132" width="8" height="10" fill="#C9A84C" opacity="0.7" rx="1"/>
+  <ellipse cx="293" cy="128" rx="5" ry="5" fill="#FACC15" opacity="0.5"/>
+  <!-- Drop shadow -->
+  <ellipse cx="200" cy="248" rx="110" ry="7" fill="#5C3D11" opacity="0.08"/>
+  <!-- Label -->
+  <text x="200" y="272" font-family="'IM Fell English', serif" font-size="15" fill="#5C3D11" text-anchor="middle">The Grand Tavern</text>
+  <text x="200" y="286" font-family="'DM Sans', sans-serif" font-size="10" fill="#8B8B7A" text-anchor="middle">The Marketplace</text>
+</svg>

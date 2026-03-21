@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <rect width="400" height="300" fill="#EEF5E0"/>
+  <rect x="0" y="225" width="400" height="75" fill="#C8D8A0" opacity="0.5"/>
+  <!-- Cobblestone path -->
+  <path d="M 50 265 Q 200 250 350 265" stroke="#8B8B7A" stroke-width="8" fill="none" opacity="0.3" stroke-linecap="round"/>
+  <!-- Row of identical stone cottages with colored doors -->
+  <!-- Cottage 1 -->
+  <rect x="30" y="150" width="60" height="80" fill="#8B8B7A" opacity="0.85" rx="1"/>
+  <polygon points="30,150 60,115 90,150" fill="#6B6B5A"/>
+  <rect x="48" y="200" width="22" height="30" fill="#4ADE80" rx="2"/>
+  <rect x="38" y="162" width="16" height="16" fill="#C9A84C" opacity="0.6" rx="1"/>
+  <rect x="66" y="162" width="16" height="16" fill="#C9A84C" opacity="0.6" rx="1"/>
+  <!-- Cottage 2 -->
+  <rect x="110" y="150" width="60" height="80" fill="#8B8B7A" opacity="0.85" rx="1"/>
+  <polygon points="110,150 140,115 170,150" fill="#6B6B5A"/>
+  <rect x="128" y="200" width="22" height="30" fill="#FACC15" rx="2"/>
+  <rect x="118" y="162" width="16" height="16" fill="#C9A84C" opacity="0.6" rx="1"/>
+  <rect x="146" y="162" width="16" height="16" fill="#C9A84C" opacity="0.6" rx="1"/>
+  <!-- Cottage 3 -->
+  <rect x="190" y="150" width="60" height="80" fill="#8B8B7A" opacity="0.85" rx="1"/>
+  <polygon points="190,150 220,115 250,150" fill="#6B6B5A"/>
+  <rect x="208" y="200" width="22" height="30" fill="#FB923C" rx="2"/>
+  <rect x="198" y="162" width="16" height="16" fill="#C9A84C" opacity="0.6" rx="1"/>
+  <rect x="226" y="162" width="16" height="16" fill="#C9A84C" opacity="0.6" rx="1"/>
+  <!-- Cottage 4 -->
+  <rect x="270" y="150" width="60" height="80" fill="#8B8B7A" opacity="0.85" rx="1"/>
+  <polygon points="270,150 300,115 330,150" fill="#6B6B5A"/>
+  <rect x="288" y="200" width="22" height="30" fill="#003087" rx="2"/>
+  <rect x="278" y="162" width="16" height="16" fill="#C9A84C" opacity="0.6" rx="1"/>
+  <rect x="306" y="162" width="16" height="16" fill="#C9A84C" opacity="0.6" rx="1"/>
+  <!-- Cottage 5 (partial) -->
+  <rect x="350" y="160" width="50" height="70" fill="#8B8B7A" opacity="0.7" rx="1"/>
+  <polygon points="348,160 375,130 400,160" fill="#6B6B5A" opacity="0.8"/>
+  <rect x="362" y="205" width="22" height="25" fill="#C9A84C" opacity="0.7" rx="2"/>
+  <!-- Flowers in front -->
+  <g fill="#FB923C" opacity="0.6">
+    <circle cx="50" cy="245" r="4"/>
+    <circle cx="130" cy="248" r="3"/>
+    <circle cx="210" cy="244" r="4"/>
+    <circle cx="290" cy="247" r="3"/>
+  </g>
+  <g fill="#4ADE80" opacity="0.5">
+    <circle cx="70" cy="248" r="3"/>
+    <circle cx="155" cy="245" r="4"/>
+    <circle cx="240" cy="249" r="3"/>
+  </g>
+  <!-- Drop shadow -->
+  <ellipse cx="200" cy="255" rx="160" ry="6" fill="#8B8B7A" opacity="0.07"/>
+  <!-- Label -->
+  <text x="200" y="278" font-family="'IM Fell English', serif" font-size="15" fill="#2D7D3A" text-anchor="middle">The Freshman Barracks</text>
+  <text x="200" y="292" font-family="'DM Sans', sans-serif" font-size="10" fill="#8B8B7A" text-anchor="middle">East Campus Dorms</text>
+</svg>

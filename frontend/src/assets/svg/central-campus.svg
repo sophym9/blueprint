@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700">
+  <rect width="1000" height="700" fill="#FDF6E3"/>
+  <rect width="1000" height="700" fill="#F5E6A0" opacity="0.2"/>
+  <rect x="10" y="10" width="980" height="680" fill="none" stroke="#FACC15" stroke-width="2" opacity="0.8" rx="4"/>
+
+  <!-- Crossing roads -->
+  <line x1="500" y1="0" x2="500" y2="700" stroke="#C9A84C" stroke-width="10" opacity="0.2"/>
+  <line x1="0" y1="350" x2="1000" y2="350" stroke="#C9A84C" stroke-width="10" opacity="0.2"/>
+
+  <!-- Road edges -->
+  <line x1="490" y1="0" x2="490" y2="700" stroke="#8B6914" stroke-width="1" opacity="0.15" stroke-dasharray="6,4"/>
+  <line x1="510" y1="0" x2="510" y2="700" stroke="#8B6914" stroke-width="1" opacity="0.15" stroke-dasharray="6,4"/>
+  <line x1="0" y1="340" x2="1000" y2="340" stroke="#8B6914" stroke-width="1" opacity="0.15" stroke-dasharray="6,4"/>
+  <line x1="0" y1="360" x2="1000" y2="360" stroke="#8B6914" stroke-width="1" opacity="0.15" stroke-dasharray="6,4"/>
+
+  <!-- Center plaza -->
+  <circle cx="500" cy="350" r="40" fill="#C9A84C" opacity="0.2" stroke="#C9A84C" stroke-width="2"/>
+  <circle cx="500" cy="350" r="8" fill="#C9A84C" opacity="0.5"/>
+
+  <!-- Direction flags -->
+  <g opacity="0.4">
+    <line x1="500" y1="100" x2="500" y2="70" stroke="#003087" stroke-width="2"/>
+    <polygon points="500,70 520,80 500,90" fill="#003087"/>
+    <line x1="900" y1="350" x2="930" y2="350" stroke="#003087" stroke-width="2"/>
+    <polygon points="930,350 920,340 920,360" fill="#003087"/>
+  </g>
+
+  <text x="500" y="48" font-family="'IM Fell English', serif" font-size="30" fill="#8B6914" text-anchor="middle" font-weight="bold">The Central Crossing</text>
+  <line x1="200" y1="58" x2="800" y2="58" stroke="#FACC15" stroke-width="1.5"/>
+</svg>

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <!-- Sword pointing top-left, hotspot at tip (0,0) -->
+  <g transform="rotate(-45 12 12)">
+    <!-- Blade -->
+    <rect x="11" y="2" width="2" height="14" fill="#C9A84C" rx="1"/>
+    <!-- Tip -->
+    <polygon points="12,0 10,4 14,4" fill="#C9A84C"/>
+    <!-- Guard -->
+    <rect x="7" y="14" width="10" height="2.5" fill="#8B8B7A" rx="1"/>
+    <!-- Handle -->
+    <rect x="11" y="16.5" width="2" height="5" fill="#5C3D11" rx="1"/>
+    <!-- Pommel -->
+    <circle cx="12" cy="22.5" r="1.5" fill="#C9A84C"/>
+  </g>
+</svg>

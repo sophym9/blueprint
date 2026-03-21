@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700">
+  <!-- Parchment background -->
+  <rect width="1000" height="700" fill="#F5E6C8"/>
+  <rect width="1000" height="700" fill="#E0CC9A" opacity="0.3"/>
+
+  <!-- Border -->
+  <rect x="10" y="10" width="980" height="680" fill="none" stroke="#C9A84C" stroke-width="2" rx="4"/>
+
+  <!-- Stone path grid -->
+  <path d="M 0 350 Q 200 330 500 350 Q 800 370 1000 350" stroke="#8B8B7A" stroke-width="8" fill="none" opacity="0.25"/>
+  <path d="M 500 0 Q 490 180 500 350 Q 510 520 500 700" stroke="#8B8B7A" stroke-width="8" fill="none" opacity="0.25"/>
+  <path d="M 0 200 Q 300 190 500 200 Q 700 210 1000 200" stroke="#8B8B7A" stroke-width="4" fill="none" opacity="0.15"/>
+
+  <!-- Ground shadow patches -->
+  <ellipse cx="200" cy="540" rx="120" ry="50" fill="#8B8B7A" opacity="0.08"/>
+  <ellipse cx="730" cy="480" rx="120" ry="50" fill="#8B8B7A" opacity="0.08"/>
+  <ellipse cx="450" cy="600" rx="140" ry="40" fill="#8B8B7A" opacity="0.06"/>
+  <ellipse cx="900" cy="560" rx="100" ry="40" fill="#8B8B7A" opacity="0.06"/>
+
+  <!-- Region title -->
+  <text x="500" y="48" font-family="'IM Fell English', serif" font-size="30" fill="#003087" text-anchor="middle" font-weight="bold">The Western Keep</text>
+  <line x1="200" y1="58" x2="800" y2="58" stroke="#C9A84C" stroke-width="1.5"/>
+
+  <!-- Decorative ivy vines -->
+  <path d="M 0 400 Q 80 380 100 420 Q 120 460 80 480" stroke="#5C7A3E" stroke-width="2" fill="none" opacity="0.4"/>
+  <path d="M 920 300 Q 940 330 960 310 Q 980 290 970 320" stroke="#5C7A3E" stroke-width="2" fill="none" opacity="0.4"/>
+
+  <!-- Cobblestones hint -->
+  <g opacity="0.12" fill="#8B8B7A">
+    <ellipse cx="120" cy="660" rx="18" ry="10"/>
+    <ellipse cx="160" cy="670" rx="20" ry="10"/>
+    <ellipse cx="205" cy="660" rx="18" ry="10"/>
+    <ellipse cx="850" cy="660" rx="18" ry="10"/>
+    <ellipse cx="890" cy="670" rx="20" ry="10"/>
+    <ellipse cx="930" cy="660" rx="18" ry="10"/>
+  </g>
+</svg>

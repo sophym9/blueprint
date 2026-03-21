@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <rect width="400" height="300" fill="#F5E6C8"/>
+  <rect x="0" y="230" width="400" height="70" fill="#D4C49A" opacity="0.5"/>
+  <!-- Tower (tall and narrow wizard-tower style) -->
+  <rect x="155" y="40" width="90" height="195" fill="#003087" rx="2"/>
+  <rect x="157" y="42" width="86" height="191" fill="#0A3A9A" opacity="0.2"/>
+  <!-- Crenellations at top -->
+  <g fill="#003087">
+    <rect x="155" y="30" width="14" height="16" rx="1"/>
+    <rect x="175" y="30" width="14" height="16" rx="1"/>
+    <rect x="195" y="30" width="14" height="16" rx="1"/>
+    <rect x="215" y="30" width="14" height="16" rx="1"/>
+    <rect x="231" y="30" width="14" height="16" rx="1"/>
+  </g>
+  <!-- Stacked glowing book windows -->
+  <g fill="#C9A84C" opacity="0.75">
+    <rect x="165" y="55" width="70" height="18" rx="3"/>
+    <rect x="165" y="82" width="70" height="18" rx="3"/>
+    <rect x="165" y="109" width="70" height="18" rx="3"/>
+    <rect x="165" y="136" width="70" height="18" rx="3"/>
+    <rect x="165" y="163" width="70" height="18" rx="3"/>
+    <rect x="165" y="190" width="70" height="18" rx="3"/>
+  </g>
+  <!-- Book spine lines -->
+  <g stroke="#F5E6C8" stroke-width="1" opacity="0.4">
+    <line x1="178" y1="55" x2="178" y2="73"/>
+    <line x1="192" y1="55" x2="192" y2="73"/>
+    <line x1="210" y1="55" x2="210" y2="73"/>
+    <line x1="224" y1="55" x2="224" y2="73"/>
+  </g>
+  <!-- Ivy on sides -->
+  <path d="M 155 80 Q 140 100 145 130 Q 135 160 150 190" stroke="#5C7A3E" stroke-width="3" fill="none" opacity="0.5" stroke-linecap="round"/>
+  <circle cx="143" cy="110" r="6" fill="#5C7A3E" opacity="0.4"/>
+  <circle cx="136" cy="145" r="5" fill="#5C7A3E" opacity="0.4"/>
+  <path d="M 245 100 Q 258 125 252 155 Q 260 180 248 205" stroke="#5C7A3E" stroke-width="3" fill="none" opacity="0.5" stroke-linecap="round"/>
+  <circle cx="257" cy="140" r="6" fill="#5C7A3E" opacity="0.4"/>
+  <!-- Doorway -->
+  <path d="M 182 235 Q 182 215 200 215 Q 218 215 218 235 Z" fill="#001A50"/>
+  <rect x="182" y="220" width="36" height="15" fill="#001A50"/>
+  <!-- Steps -->
+  <rect x="165" y="235" width="70" height="6" fill="#8B8B7A" opacity="0.5" rx="1"/>
+  <!-- Glowing tip - wizard tower star -->
+  <polygon points="200,10 203,20 213,20 205,26 208,36 200,30 192,36 195,26 187,20 197,20" fill="#C9A84C" opacity="0.8"/>
+  <!-- Drop shadow -->
+  <ellipse cx="200" cy="248" rx="60" ry="6" fill="#003087" opacity="0.1"/>
+  <!-- Label -->
+  <text x="200" y="272" font-family="'IM Fell English', serif" font-size="15" fill="#003087" text-anchor="middle">The Archive Tower</text>
+  <text x="200" y="286" font-family="'DM Sans', sans-serif" font-size="10" fill="#8B8B7A" text-anchor="middle">Perkins Library</text>
+</svg>

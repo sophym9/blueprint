@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <rect width="400" height="300" fill="#F5E6C8"/>
+  <!-- Ground -->
+  <rect x="0" y="240" width="400" height="60" fill="#D4C49A" opacity="0.6"/>
+  <!-- Main arena body -->
+  <ellipse cx="200" cy="180" rx="160" ry="90" fill="#003087"/>
+  <ellipse cx="200" cy="180" rx="154" ry="84" fill="#0A3A9A" opacity="0.3"/>
+  <!-- Arena interior (crowd silhouettes hint) -->
+  <ellipse cx="200" cy="180" rx="100" ry="55" fill="#001A50"/>
+  <!-- Arched windows around perimeter -->
+  <g fill="#C9A84C" opacity="0.6">
+    <path d="M 90 160 Q 90 145 100 145 Q 110 145 110 160 L 110 175 L 90 175 Z"/>
+    <path d="M 120 148 Q 120 133 130 133 Q 140 133 140 148 L 140 163 L 120 163 Z"/>
+    <path d="M 155 140 Q 155 125 165 125 Q 175 125 175 140 L 175 155 L 155 155 Z"/>
+    <path d="M 225 140 Q 225 125 235 125 Q 245 125 245 140 L 245 155 L 225 155 Z"/>
+    <path d="M 260 148 Q 260 133 270 133 Q 280 133 280 148 L 280 163 L 260 163 Z"/>
+    <path d="M 290 160 Q 290 145 300 145 Q 310 145 310 160 L 310 175 L 290 175 Z"/>
+  </g>
+  <!-- Crowd silhouettes inside -->
+  <g fill="#F5E6C8" opacity="0.08">
+    <circle cx="160" cy="185" r="6"/>
+    <circle cx="175" cy="180" r="5"/>
+    <circle cx="190" cy="186" r="6"/>
+    <circle cx="205" cy="179" r="5"/>
+    <circle cx="220" cy="185" r="6"/>
+    <circle cx="235" cy="182" r="5"/>
+    <circle cx="248" cy="186" r="6"/>
+  </g>
+  <!-- Roof ring -->
+  <ellipse cx="200" cy="130" rx="90" ry="20" fill="#003087" stroke="#C9A84C" stroke-width="2"/>
+  <!-- Flags -->
+  <line x1="200" y1="90" x2="200" y2="110" stroke="#C9A84C" stroke-width="2"/>
+  <polygon points="200,90 220,97 200,104" fill="#003087"/>
+  <line x1="240" y1="110" x2="240" y2="128" stroke="#C9A84C" stroke-width="1.5"/>
+  <polygon points="240,110 255,116 240,122" fill="#C9A84C"/>
+  <!-- Entrance arch -->
+  <path d="M 178 240 Q 178 215 200 215 Q 222 215 222 240 Z" fill="#001A50"/>
+  <rect x="178" y="225" width="44" height="15" fill="#001A50"/>
+  <!-- Drop shadow -->
+  <ellipse cx="200" cy="248" rx="130" ry="8" fill="#003087" opacity="0.1"/>
+  <!-- Label -->
+  <text x="200" y="272" font-family="'IM Fell English', serif" font-size="15" fill="#003087" text-anchor="middle">The Blue Devil Colosseum</text>
+  <text x="200" y="286" font-family="'DM Sans', sans-serif" font-size="10" fill="#8B8B7A" text-anchor="middle">Cameron Indoor Stadium</text>
+</svg>

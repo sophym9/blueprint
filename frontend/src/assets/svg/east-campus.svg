@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700">
+  <rect width="1000" height="700" fill="#EEF5E0"/>
+  <rect width="1000" height="700" fill="#D4E8B0" opacity="0.25"/>
+  <rect x="10" y="10" width="980" height="680" fill="none" stroke="#4ADE80" stroke-width="2" opacity="0.6" rx="4"/>
+
+  <!-- Grassy ground -->
+  <rect x="0" y="580" width="1000" height="120" fill="#8FBC5A" opacity="0.15"/>
+
+  <!-- Winding path -->
+  <path d="M 100 700 Q 200 620 350 580 Q 500 540 650 580 Q 800 620 900 700" stroke="#C9A84C" stroke-width="6" fill="none" opacity="0.3" stroke-linecap="round"/>
+
+  <!-- Trees -->
+  <g fill="#5C7A3E">
+    <polygon points="80,200 100,250 60,250" opacity="0.5"/>
+    <polygon points="80,230 105,270 55,270" opacity="0.45"/>
+    <polygon points="920,180 940,230 900,230" opacity="0.5"/>
+    <polygon points="920,210 945,255 895,255" opacity="0.45"/>
+    <polygon points="150,450 170,500 130,500" opacity="0.4"/>
+    <polygon points="870,420 890,470 850,470" opacity="0.4"/>
+  </g>
+
+  <!-- Flowers -->
+  <g fill="#FACC15" opacity="0.5">
+    <circle cx="200" cy="600" r="4"/>
+    <circle cx="350" cy="620" r="3"/>
+    <circle cx="700" cy="610" r="4"/>
+    <circle cx="820" cy="590" r="3"/>
+  </g>
+
+  <text x="500" y="48" font-family="'IM Fell English', serif" font-size="30" fill="#2D7D3A" text-anchor="middle" font-weight="bold">The Eastern Grove</text>
+  <line x1="200" y1="58" x2="800" y2="58" stroke="#4ADE80" stroke-width="1.5" opacity="0.8"/>
+</svg>
