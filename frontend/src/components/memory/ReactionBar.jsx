@@ -42,7 +42,6 @@ export default function ReactionBar({ memory, user, onAddReaction, onRemoveReact
               borderRadius: '999px',
               padding: '4px 10px',
               cursor: user ? 'pointer' : 'default',
-              fontSize: '14px',
               display: 'flex',
               alignItems: 'center',
               gap: '4px',
