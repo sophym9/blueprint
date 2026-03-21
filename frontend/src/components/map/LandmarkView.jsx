@@ -5,23 +5,14 @@ import MapPin from './MapPin'
 import MemoryModal from '../memory/MemoryModal'
 import CreateMemoryForm from '../memory/CreateMemoryForm'
 
-const landmarkSvgs = {
-  chapel: new URL('../../assets/svg/chapel.svg', import.meta.url).href,
-  cameron: new URL('../../assets/svg/cameron.svg', import.meta.url).href,
-  quad: new URL('../../assets/svg/quad.svg', import.meta.url).href,
-  perkins: new URL('../../assets/svg/perkins.svg', import.meta.url).href,
-  marketplace: new URL('../../assets/svg/marketplace.svg', import.meta.url).href,
-  eastdorms: new URL('../../assets/svg/eastdorms.svg', import.meta.url).href,
-  baldwin: new URL('../../assets/svg/baldwin.svg', import.meta.url).href,
-  bryan: new URL('../../assets/svg/bryan.svg', import.meta.url).href,
-  brodhead: new URL('../../assets/svg/brodhead.svg', import.meta.url).href,
-}
+const ZOOM_SCALE = 2.35
 
 export default function LandmarkView({ landmarkId, user, onPointsEarned }) {
   const landmark = LANDMARKS[landmarkId]
   const { memories, loading, fetchMemories, createMemory, addReaction, removeReaction } = useMemories()
   const [selectedMemory, setSelectedMemory] = useState(null)
   const [pendingPin, setPendingPin] = useState(null) // { pin_x, pin_y }
+  const [isDropMode, setIsDropMode] = useState(false)
   const containerRef = useRef(null)
 
   useEffect(() => {
@@ -29,14 +20,20 @@ export default function LandmarkView({ landmarkId, user, onPointsEarned }) {
   }, [landmarkId])
 
   function handleContainerClick(e) {
-    // Don't open form if clicking on a pin or modal
-    if (e.target.closest('.map-pin') || e.target.closest('.memory-modal')) return
-    if (!user) return
+    if (
+      e.target.closest('.map-pin') ||
+      e.target.closest('.memory-modal') ||
+      e.target.closest('.drop-memory-btn')
+    ) {
+      return
+    }
+    if (!user || !isDropMode) return
 
     const rect = containerRef.current.getBoundingClientRect()
     const pin_x = ((e.clientX - rect.left) / rect.width) * 100
     const pin_y = ((e.clientY - rect.top) / rect.height) * 100
     setPendingPin({ pin_x, pin_y })
+    setIsDropMode(false)
   }
 
   async function handleCreateMemory(formData) {
@@ -56,6 +53,9 @@ export default function LandmarkView({ landmarkId, user, onPointsEarned }) {
 
   if (!landmark) return null
 
+  const imageLeft = `${50 - landmark.mapX * ZOOM_SCALE}%`
+  const imageTop = `${50 - landmark.mapY * ZOOM_SCALE}%`
+
   return (
     <div
       ref={containerRef}
@@ -64,43 +64,111 @@ export default function LandmarkView({ landmarkId, user, onPointsEarned }) {
         position: 'relative',
         width: '100%',
         height: '100%',
-        background: '#F5E6C8',
-        cursor: user ? 'crosshair' : 'default',
+        overflow: 'hidden',
+        background: '#1a1208',
+        cursor: user && isDropMode ? 'crosshair' : 'default',
       }}
     >
-      {/* Landmark illustration fills screen */}
+      {/* Zoomed campus map */}
       <img
-        src={landmarkSvgs[landmarkId]}
-        alt={landmark.realName}
+        src="/duke-campus-map.png"
+        alt="Duke Campus Map"
         style={{
-          width: '100%',
-          height: '100%',
-          objectFit: 'contain',
-          display: 'block',
+          position: 'absolute',
+          left: imageLeft,
+          top: imageTop,
+          width: `${ZOOM_SCALE * 100}%`,
+          height: `${ZOOM_SCALE * 100}%`,
+          maxWidth: 'none',
+          maxHeight: 'none',
           userSelect: 'none',
+          pointerEvents: 'none',
         }}
         draggable={false}
       />
 
-      {/* Click hint if logged in */}
-      {user && (
-        <div
-          style={{
-            position: 'absolute',
-            top: '16px',
-            right: '16px',
-            background: 'rgba(10,14,26,0.7)',
-            border: '1px solid rgba(201,168,76,0.3)',
-            borderRadius: '6px',
-            padding: '6px 12px',
-            fontSize: '12px',
-            color: '#9CA3AF',
-            fontFamily: "'DM Sans', sans-serif",
-            pointerEvents: 'none',
-          }}
-        >
-          Click anywhere to pin a memory
+      <div
+        style={{
+          position: 'absolute',
+          top: '16px',
+          right: '16px',
+          zIndex: 20,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+        }}
+      >
+        {isDropMode && user && (
+          <span
+            style={{
+              background: 'rgba(10,14,26,0.82)',
+              border: '1px solid rgba(201,168,76,0.3)',
+              borderRadius: '6px',
+              padding: '6px 10px',
+              fontSize: '12px',
+              color: '#9CA3AF',
+              fontFamily: "'DM Sans', sans-serif",
+            }}
+          >
+            Click map to place
+          </span>
+        )}
+
+        {user && (
+          <button
+            type="button"
+            className="drop-memory-btn"
+            onClick={(e) => {
+              e.stopPropagation()
+              setSelectedMemory(null)
+              setPendingPin(null)
+              setIsDropMode((current) => !current)
+            }}
+            style={{
+              background: isDropMode
+                ? 'linear-gradient(135deg, #E8C56A, #C9A84C)'
+                : 'rgba(10,14,26,0.88)',
+              border: '1px solid #C9A84C',
+              color: isDropMode ? '#0A0E1A' : '#C9A84C',
+              borderRadius: '8px',
+              padding: '8px 14px',
+              cursor: 'pointer',
+              fontSize: '13px',
+              fontWeight: 700,
+              fontFamily: "'DM Sans', sans-serif",
+              boxShadow: isDropMode ? '0 0 14px rgba(201,168,76,0.4)' : 'none',
+            }}
+          >
+            Drop memory
+          </button>
+        )}
+      </div>
+
+      {/* Landmark tag */}
+      <div
+        style={{
+          position: 'absolute',
+          left: '16px',
+          bottom: '16px',
+          zIndex: 20,
+          background: 'rgba(10,14,26,0.82)',
+          border: '1px solid rgba(201,168,76,0.3)',
+          borderRadius: '8px',
+          padding: '8px 12px',
+          maxWidth: '280px',
+        }}
+      >
+        <div style={{ color: '#C9A84C', fontFamily: "'IM Fell English', serif", fontSize: '15px' }}>
+          {landmark.fictionalName}
         </div>
+        <div style={{ color: '#D1D5DB', fontFamily: "'DM Sans', sans-serif", fontSize: '12px' }}>
+          {landmark.realName}
+        </div>
+      </div>
+
+      {/* Drop memory hint if logged in */}
+      {user && (
+        <div />
       )}
 
       {/* Memory pins */}

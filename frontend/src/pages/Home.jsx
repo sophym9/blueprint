@@ -8,11 +8,13 @@ export default function Home({ user, onUserUpdate }) {
   const [memoryCounts, setMemoryCounts] = useState({})
 
   useEffect(() => {
-    // Load overall memory counts by region for zone progress
+    // Load overall memory counts by landmark for direct map entry points
     api.get('/memories/').then(res => {
       const counts = {}
       for (const m of res.data) {
-        counts[m.region] = (counts[m.region] || 0) + 1
+        const key = m.landmark_id || m.region
+        if (!key) continue
+        counts[key] = (counts[key] || 0) + 1
       }
       setMemoryCounts(counts)
     }).catch(() => {})

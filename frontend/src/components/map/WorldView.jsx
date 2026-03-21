@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { REGIONS, MAP_W, MAP_H } from '../../lib/mapConfig'
+import { MAP_W, MAP_H } from '../../lib/mapConfig'
+import { LANDMARKS } from '../../lib/landmarks'
 
-export default function WorldView({ onSelectRegion, memoryCounts = {} }) {
+export default function WorldView({ onSelectLandmark, memoryCounts = {} }) {
   const [hovered, setHovered] = useState(null)
 
   return (
@@ -14,114 +15,58 @@ export default function WorldView({ onSelectRegion, memoryCounts = {} }) {
         draggable={false}
       />
 
-      {/* SVG overlay for clickable regions */}
-      <svg
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', overflow: 'visible' }}
-        viewBox={`0 0 ${MAP_W} ${MAP_H}`}
-      >
-        {Object.entries(REGIONS).map(([key, region]) => {
-          const isHovered = hovered === key
-          const { cx, cy, rx, ry } = region.overlay
-          const count = memoryCounts[key] || 0
+      {Object.entries(LANDMARKS).map(([id, landmark]) => {
+        const isHovered = hovered === id
+        const count = memoryCounts[id] || 0
 
-          return (
-            <g
-              key={key}
-              style={{ cursor: 'pointer' }}
-              onClick={e => { e.stopPropagation(); onSelectRegion(key) }}
-              onPointerDown={e => e.stopPropagation()}
-              onMouseEnter={() => setHovered(key)}
-              onMouseLeave={() => setHovered(null)}
-            >
-              {/* Territory fill */}
-              <ellipse
-                cx={cx} cy={cy} rx={rx} ry={ry}
-                fill={region.color}
-                fillOpacity={isHovered ? 0.22 : 0.08}
-                stroke={region.color}
-                strokeWidth={isHovered ? 3 : 1.5}
-                strokeDasharray={isHovered ? 'none' : '10,5'}
-                strokeOpacity={isHovered ? 1 : 0.55}
-                style={{ transition: 'all 0.2s ease' }}
-              />
-
-              {/* Hover glow ring */}
-              {isHovered && (
-                <ellipse
-                  cx={cx} cy={cy}
-                  rx={rx + 12} ry={ry + 12}
-                  fill="none"
-                  stroke={region.color}
-                  strokeWidth={1}
-                  strokeOpacity={0.3}
-                />
-              )}
-
-              {/* Label panel */}
-              <g style={{ pointerEvents: 'none' }}>
-                <rect
-                  x={cx - 88} y={cy - 30}
-                  width={176} height={isHovered ? 60 : 50}
-                  rx={8}
-                  fill="rgba(10,14,26,0.82)"
-                  stroke={region.color}
-                  strokeWidth={isHovered ? 1.5 : 1}
-                  strokeOpacity={isHovered ? 1 : 0.6}
-                  style={{ transition: 'all 0.2s' }}
-                />
-                <text
-                  x={cx} y={cy - 10}
-                  fontFamily="'IM Fell English', serif"
-                  fontSize={isHovered ? 15 : 13}
-                  fill={region.color}
-                  textAnchor="middle"
-                  fontWeight="bold"
-                  style={{ transition: 'font-size 0.15s' }}
-                >
-                  {region.fictionalName}
-                </text>
-                <text
-                  x={cx} y={cy + 7}
-                  fontFamily="'DM Sans', sans-serif"
-                  fontSize="11"
-                  fill="#9CA3AF"
-                  textAnchor="middle"
-                >
-                  {region.realName}
-                </text>
-
-                {/* Memory count */}
-                {count > 0 && (
-                  <text
-                    x={cx} y={cy + 22}
-                    fontFamily="'DM Sans', sans-serif"
-                    fontSize="10"
-                    fill={region.color}
-                    fillOpacity="0.8"
-                    textAnchor="middle"
-                  >
-                    {count} {count === 1 ? 'memory' : 'memories'}
-                  </text>
-                )}
-
-                {/* Enter prompt on hover */}
-                {isHovered && (
-                  <text
-                    x={cx} y={cy + 22}
-                    fontFamily="'DM Sans', sans-serif"
-                    fontSize="12"
-                    fontWeight="600"
-                    fill={region.color}
-                    textAnchor="middle"
-                  >
-                    Click to enter →
-                  </text>
-                )}
-              </g>
-            </g>
-          )
-        })}
-      </svg>
+        return (
+          <div
+            key={id}
+            onClick={e => { e.stopPropagation(); onSelectLandmark(id) }}
+            onPointerDown={e => e.stopPropagation()}
+            onMouseEnter={() => setHovered(id)}
+            onMouseLeave={() => setHovered(null)}
+            style={{
+              position: 'absolute',
+              left: `${landmark.mapX}%`,
+              top: `${landmark.mapY}%`,
+              transform: 'translate(-50%, -100%)',
+              cursor: 'pointer',
+              zIndex: 10,
+            }}
+          >
+            {isHovered && (
+              <div style={{
+                position: 'absolute',
+                bottom: '100%',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                background: 'rgba(10,14,26,0.95)',
+                border: '1px solid #C9A84C',
+                borderRadius: '8px',
+                padding: '10px 14px',
+                width: '190px',
+                marginBottom: '6px',
+                pointerEvents: 'none',
+                whiteSpace: 'normal',
+              }}>
+                <div style={{ fontFamily: "'IM Fell English', serif", fontSize: '13px', color: '#C9A84C', marginBottom: '2px' }}>
+                  {landmark.fictionalName}
+                </div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9CA3AF', marginBottom: '4px' }}>
+                  {landmark.realName}
+                </div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10px', color: '#D1D5DB', lineHeight: '1.4' }}>
+                  {landmark.description}
+                </div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10px', color: '#C9A84C', marginTop: '6px' }}>
+                  {count > 0 ? `${count} ${count === 1 ? 'memory' : 'memories'}` : 'Click to enter'}
+                </div>
+              </div>
+            )}
+          </div>
+        )
+      })}
     </div>
   )
 }
