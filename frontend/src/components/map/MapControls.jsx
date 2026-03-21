@@ -1,10 +1,6 @@
-import { REGIONS, ZOOM_LEVELS } from '../../lib/mapConfig'
-import { LANDMARKS } from '../../lib/landmarks'
+import { ZOOM_LEVELS } from '../../lib/mapConfig'
 
 export default function MapControls({ zoomLevel, activeRegion, activeLandmark, onBack, onZoomIn, onZoomOut }) {
-  const region = activeRegion ? REGIONS[activeRegion] : null
-  const landmark = activeLandmark ? LANDMARKS[activeLandmark] : null
-
   return (
     <div
       style={{
@@ -17,33 +13,6 @@ export default function MapControls({ zoomLevel, activeRegion, activeLandmark, o
         gap: '8px',
       }}
     >
-      {/* Breadcrumb */}
-      <div
-        style={{
-          background: 'rgba(10,14,26,0.85)',
-          border: '1px solid rgba(201,168,76,0.4)',
-          borderRadius: '6px',
-          padding: '6px 12px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
-        }}
-      >
-        <span className="font-map text-xs" style={{ color: '#C9A84C' }}>🗺 The Realm of Duke</span>
-        {region && (
-          <>
-            <span style={{ color: '#4B5563' }}>›</span>
-            <span className="font-map text-xs" style={{ color: '#C9A84C' }}>{region.fictionalName}</span>
-          </>
-        )}
-        {landmark && (
-          <>
-            <span style={{ color: '#4B5563' }}>›</span>
-            <span className="font-map text-xs" style={{ color: '#C9A84C' }}>{landmark.fictionalName}</span>
-          </>
-        )}
-      </div>
-
       {/* Back + zoom buttons */}
       <div style={{ display: 'flex', gap: '6px' }}>
         {zoomLevel > ZOOM_LEVELS.WORLD && (
