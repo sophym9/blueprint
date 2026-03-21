@@ -33,7 +33,7 @@ export default function Profile({ user }) {
   return (
     <div
       style={{
-        minHeight: '100%',
+        height: '100%',
         paddingTop: '68px',
         paddingBottom: '48px',
         background: 'var(--bg-dark)',

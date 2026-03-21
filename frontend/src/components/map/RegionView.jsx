@@ -45,7 +45,8 @@ export default function RegionView({ region, onSelectLandmark, memoryCounts = {}
         return (
           <div
             key={landmark.id}
-            onClick={() => onSelectLandmark(landmark.id)}
+            onClick={e => { e.stopPropagation(); onSelectLandmark(landmark.id) }}
+            onPointerDown={e => e.stopPropagation()}
             onMouseEnter={() => setHovered(landmark.id)}
             onMouseLeave={() => setHovered(null)}
             style={{
@@ -55,6 +56,7 @@ export default function RegionView({ region, onSelectLandmark, memoryCounts = {}
               transform: 'translate(-50%, -50%)',
               cursor: 'pointer',
               zIndex: 10,
+              padding: '12px',
             }}
           >
             {/* Hover tooltip */}

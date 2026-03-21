@@ -10,17 +10,17 @@ export default function DukeWorldMap({ user, onPointsEarned, memoryCounts = {} }
   const [zoomLevel, setZoomLevel] = useState(ZOOM_LEVELS.WORLD)
   const [activeRegion, setActiveRegion] = useState(null)
   const [activeLandmark, setActiveLandmark] = useState(null)
-  const { cssTransform, handlers, zoomTo, reset, transform } = useMapTransform({ initialScale: 0.85 })
+  const { cssTransform, isDragging, handlers, makeWheelHandler, zoomTo, reset, transform } = useMapTransform({ initialScale: 0.85 })
   const wrapperRef = useRef(null)
 
-  // Prevent default wheel scroll on map
+  // Attach non-passive wheel listener so we can preventDefault
   useEffect(() => {
     const el = wrapperRef.current
     if (!el) return
-    const onWheel = e => { e.preventDefault(); handlers.onWheel(e) }
+    const onWheel = makeWheelHandler(wrapperRef)
     el.addEventListener('wheel', onWheel, { passive: false })
     return () => el.removeEventListener('wheel', onWheel)
-  }, [handlers])
+  }, [makeWheelHandler])
 
   function handleSelectRegion(regionKey) {
     setActiveRegion(regionKey)
@@ -65,6 +65,7 @@ export default function DukeWorldMap({ user, onPointsEarned, memoryCounts = {} }
       onPointerDown={zoomLevel !== ZOOM_LEVELS.LANDMARK ? handlers.onPointerDown : undefined}
       onPointerMove={zoomLevel !== ZOOM_LEVELS.LANDMARK ? handlers.onPointerMove : undefined}
       onPointerUp={zoomLevel !== ZOOM_LEVELS.LANDMARK ? handlers.onPointerUp : undefined}
+      onPointerLeave={zoomLevel !== ZOOM_LEVELS.LANDMARK ? handlers.onPointerLeave : undefined}
     >
       {/* Controls overlay */}
       <MapControls
@@ -91,7 +92,7 @@ export default function DukeWorldMap({ user, onPointsEarned, memoryCounts = {} }
         <div
           style={{
             transform: cssTransform,
-            transition: 'transform 0.3s ease',
+            transition: isDragging ? 'none' : 'transform 0.3s ease',
             transformOrigin: 'center center',
             display: 'flex',
             alignItems: 'center',
