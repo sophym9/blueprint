@@ -6,36 +6,47 @@ export function useAuth() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const userId = localStorage.getItem('userId')
-    if (!userId) {
+    const token = localStorage.getItem('authToken')
+    if (!token) {
       setLoading(false)
       return
     }
-    api.get(`/users/${userId}`)
+    // Validate token and fetch current user
+    api.get('/auth/me')
       .then(res => setUser(res.data))
       .catch(() => {
-        localStorage.removeItem('userId')
+        localStorage.removeItem('authToken')
       })
       .finally(() => setLoading(false))
   }, [])
 
-  async function login(name, graduationYear) {
-    const res = await api.post('/users/', { name, graduation_year: graduationYear })
-    localStorage.setItem('userId', res.data.id)
-    setUser(res.data)
-    return res.data
+  async function login(email, password) {
+    const res = await api.post('/auth/login', { email, password })
+    localStorage.setItem('authToken', res.data.access_token)
+    setUser(res.data.user)
+    return res.data.user
+  }
+
+  async function register(name, email, password, graduationYear) {
+    const res = await api.post('/auth/register', {
+      name,
+      email,
+      password,
+      graduation_year: graduationYear,
+    })
+    localStorage.setItem('authToken', res.data.access_token)
+    setUser(res.data.user)
+    return res.data.user
   }
 
   function logout() {
-    localStorage.removeItem('userId')
+    localStorage.removeItem('authToken')
     setUser(null)
   }
 
   function refreshUser() {
-    const userId = localStorage.getItem('userId')
-    if (!userId) return
-    api.get(`/users/${userId}`).then(res => setUser(res.data))
+    api.get('/auth/me').then(res => setUser(res.data)).catch(() => {})
   }
 
-  return { user, loading, login, logout, refreshUser }
+  return { user, loading, login, register, logout, refreshUser }
 }

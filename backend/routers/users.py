@@ -2,20 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
 from models.user import User
-from schemas.user import UserCreate, UserUpdate, UserResponse
+from schemas.user import UserUpdate, UserResponse
 from services.points import get_rank_title
 
 router = APIRouter(prefix="/users", tags=["users"])
-
-
-@router.post("/", response_model=UserResponse)
-def create_user(payload: UserCreate, db: Session = Depends(get_db)):
-    """Called on first 'login' — creates user, returns their ID for localStorage."""
-    user = User(name=payload.name, graduation_year=payload.graduation_year)
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    return _to_response(user)
 
 
 @router.get("/{user_id}", response_model=UserResponse)

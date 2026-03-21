@@ -8,7 +8,7 @@ import Login from './pages/Login'
 import Profile from './pages/Profile'
 
 export default function App() {
-  const { user, loading, login, logout, refreshUser } = useAuth()
+  const { user, loading, login, register, logout, refreshUser } = useAuth()
   const [showLoader, setShowLoader] = useState(true)
 
   useEffect(() => {
@@ -20,17 +20,24 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <NavBar user={user} onLogout={logout} />
+      {user && <NavBar user={user} onLogout={logout} />}
       <div style={{ height: '100%', position: 'relative' }}>
         <Routes>
+          {/* Landing: redirect to map if logged in, otherwise login */}
           <Route
             path="/"
-            element={<Home user={user} onUserUpdate={refreshUser} />}
+            element={
+              user
+                ? <Home user={user} onUserUpdate={refreshUser} />
+                : <Navigate to="/login" replace />
+            }
           />
           <Route
             path="/login"
             element={
-              user ? <Navigate to="/" replace /> : <Login onLogin={login} />
+              user
+                ? <Navigate to="/" replace />
+                : <Login onLogin={login} onRegister={register} />
             }
           />
           <Route

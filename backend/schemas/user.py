@@ -1,11 +1,24 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from typing import Optional, List
 from datetime import datetime
 
 
-class UserCreate(BaseModel):
+class RegisterRequest(BaseModel):
     name: str
+    email: str
+    password: str
     graduation_year: Optional[int] = None
+
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: "UserResponse"
 
 
 class UserUpdate(BaseModel):
@@ -16,6 +29,7 @@ class UserUpdate(BaseModel):
 
 class UserResponse(BaseModel):
     id: str
+    email: Optional[str]
     name: str
     graduation_year: Optional[int]
     avatar_url: Optional[str]
@@ -26,3 +40,6 @@ class UserResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+TokenResponse.model_rebuild()
