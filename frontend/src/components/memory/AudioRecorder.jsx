@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import api from '../../lib/api'
 
-export default function AudioRecorder({ onAudioUrl }) {
+export default function AudioRecorder({ onAudioUrl, existingUrl = null, onClear = null }) {
   const [recording, setRecording] = useState(false)
   const [audioBlob, setAudioBlob] = useState(null)
   const [audioUrl, setAudioUrl] = useState(null)
@@ -36,9 +36,7 @@ export default function AudioRecorder({ onAudioUrl }) {
     try {
       const formData = new FormData()
       formData.append('file', audioBlob, 'voice-memory.webm')
-      const res = await api.post('/upload/audio', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      })
+      const res = await api.post('/upload/audio', formData)
       onAudioUrl(res.data.url)
     } finally {
       setUploading(false)
@@ -49,6 +47,30 @@ export default function AudioRecorder({ onAudioUrl }) {
     setAudioBlob(null)
     setAudioUrl(null)
     onAudioUrl(null)
+  }
+
+  // Show existing saved audio note with option to remove or re-record
+  if (existingUrl && !audioUrl) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <label style={{ fontSize: '12px', color: '#9CA3AF', fontFamily: "'DM Sans', sans-serif" }}>
+          🎙 Voice Note
+        </label>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <audio src={existingUrl} controls style={{ height: '32px', flex: 1 }} />
+          {onClear && (
+            <button
+              type="button"
+              onClick={onClear}
+              style={{
+                background: 'none', border: '1px solid #4B5563', color: '#6B7280',
+                borderRadius: '6px', padding: '6px 10px', cursor: 'pointer', fontSize: '12px',
+              }}
+            >✕</button>
+          )}
+        </div>
+      </div>
+    )
   }
 
   return (

@@ -8,17 +8,10 @@ import CreateMemoryForm from '../memory/CreateMemoryForm'
 
 const ZOOM_SCALE = 2.35
 
-export default function LandmarkView({
-  landmarkId,
-  user,
-  onPointsEarned,
-  initialPendingPin = null,
-  onComposerConsumed,
-  focusPoint = null,
-}) {
+export default function LandmarkView({ landmarkId, user, onPointsEarned, focusPoint = null }) {
   const landmark = LANDMARKS[landmarkId]
   const navigate = useNavigate()
-  const { memories, loading, fetchMemories, createMemory, addReaction, removeReaction } = useMemories()
+  const { memories, loading, fetchMemories, createMemory, updateMemory, deleteMemory, addReaction, removeReaction } = useMemories()
   const [selectedMemory, setSelectedMemory] = useState(null)
   const [pendingPin, setPendingPin] = useState(null) // { pin_x, pin_y }
   const [submitError, setSubmitError] = useState(null)
@@ -27,14 +20,6 @@ export default function LandmarkView({
   useEffect(() => {
     fetchMemories({ landmarkId })
   }, [landmarkId])
-
-  useEffect(() => {
-    if (!initialPendingPin) return
-    setSelectedMemory(null)
-    setSubmitError(null)
-    setPendingPin(initialPendingPin)
-    onComposerConsumed?.()
-  }, [initialPendingPin, onComposerConsumed])
 
   function handleContainerClick(e) {
     if (
@@ -115,6 +100,19 @@ export default function LandmarkView({
         draggable={false}
       />
 
+      {/* Click-to-pin hint */}
+      {user && !pendingPin && !selectedMemory && (
+        <div style={{
+          position: 'absolute', top: '16px', right: '16px', zIndex: 20,
+          background: 'rgba(10,14,26,0.75)', border: '1px solid rgba(201,168,76,0.3)',
+          borderRadius: '6px', padding: '6px 12px',
+          fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#9CA3AF',
+          pointerEvents: 'none',
+        }}>
+          Tap anywhere to drop a memory
+        </div>
+      )}
+
       {/* Landmark tag */}
       <div
         style={{
@@ -169,16 +167,24 @@ export default function LandmarkView({
       {selectedMemory && (
         <div className="memory-modal">
           <MemoryModal
-            memory={selectedMemory}
+            memory={memories.find(m => m.id === selectedMemory.id) || selectedMemory}
             user={user}
             onClose={() => setSelectedMemory(null)}
             onAddReaction={addReaction}
             onRemoveReaction={removeReaction}
+            onUpdate={async (data) => {
+              const updated = await updateMemory(selectedMemory.id, data)
+              setSelectedMemory(updated)
+            }}
+            onDelete={async () => {
+              await deleteMemory(selectedMemory.id)
+              setSelectedMemory(null)
+            }}
           />
         </div>
       )}
 
-      {/* Create memory form */}
+      {/* Create memory form — bottom sheet, no floating anchor */}
       {pendingPin && !selectedMemory && (
         <CreateMemoryForm
           onSubmit={handleCreateMemory}
@@ -186,7 +192,6 @@ export default function LandmarkView({
             setPendingPin(null)
             setSubmitError(null)
           }}
-          anchor={pendingPin}
           requireLogin={!user}
           onLoginRequired={() => navigate('/login')}
           errorMessage={submitError}

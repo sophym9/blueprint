@@ -4,7 +4,7 @@ from typing import Optional, List
 from database import get_db
 from models.memory import Memory
 from models.user import User
-from schemas.memory import MemoryCreate, MemoryResponse
+from schemas.memory import MemoryCreate, MemoryUpdate, MemoryResponse
 from services.auth import get_current_user
 from services.points import calculate_points, award_points
 
@@ -65,6 +65,25 @@ def get_memory(memory_id: str, db: Session = Depends(get_db)):
     memory = db.query(Memory).filter(Memory.id == memory_id).first()
     if not memory:
         raise HTTPException(status_code=404, detail="Memory not found")
+    return _serialize(memory)
+
+
+@router.patch("/{memory_id}", response_model=MemoryResponse)
+def update_memory(
+    memory_id: str,
+    payload: MemoryUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    memory = db.query(Memory).filter(Memory.id == memory_id).first()
+    if not memory:
+        raise HTTPException(status_code=404, detail="Memory not found")
+    if memory.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not your memory")
+    for field, value in payload.model_dump(exclude_unset=True).items():
+        setattr(memory, field, value)
+    db.commit()
+    db.refresh(memory)
     return _serialize(memory)
 
 
