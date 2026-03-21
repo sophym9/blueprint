@@ -1,9 +1,8 @@
 import { useState } from 'react'
 
 const ZONES = [
-  { key: 'west', label: 'West Keep', color: '#003087' },
-  { key: 'east', label: 'East Grove', color: '#4ADE80' },
-  { key: 'central', label: 'Crossing', color: '#FACC15' },
+  { key: 'west', label: 'Western Keep', color: '#4A90E2' },
+  { key: 'central', label: 'Central Crossing', color: '#C9A84C' },
 ]
 
 export default function ZoneProgress({ memoryCounts = {}, unlockedZones = [] }) {

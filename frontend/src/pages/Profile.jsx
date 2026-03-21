@@ -6,9 +6,8 @@ import { LANDMARKS } from '../lib/landmarks'
 import { REGIONS } from '../lib/mapConfig'
 
 const ZONES = [
-  { key: 'west', label: 'Western Keep', color: '#003087' },
-  { key: 'east', label: 'Eastern Grove', color: '#4ADE80' },
-  { key: 'central', label: 'Central Crossing', color: '#FACC15' },
+  { key: 'west', label: 'Western Keep', color: '#4A90E2' },
+  { key: 'central', label: 'Central Crossing', color: '#C9A84C' },
 ]
 
 export default function Profile({ user }) {
@@ -144,7 +143,7 @@ export default function Profile({ user }) {
                 </div>
                 <div>
                   <span className="font-display" style={{ color: '#FACC15', fontSize: '24px' }}>
-                    {(user.zones_unlocked || []).length}/3
+                    {(user.zones_unlocked || []).length}/2
                   </span>
                   <span style={{ fontSize: '11px', color: '#6B7280', display: 'block', fontFamily: "'DM Sans', sans-serif" }}>
                     Zones Explored

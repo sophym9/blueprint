@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { ZOOM_LEVELS } from '../../lib/mapConfig'
+import { ZOOM_LEVELS, REGIONS } from '../../lib/mapConfig'
 import { useMapTransform } from '../../hooks/useMapTransform'
 import WorldView from './WorldView'
 import RegionView from './RegionView'
@@ -25,7 +25,8 @@ export default function DukeWorldMap({ user, onPointsEarned, memoryCounts = {} }
   function handleSelectRegion(regionKey) {
     setActiveRegion(regionKey)
     setZoomLevel(ZOOM_LEVELS.REGION)
-    zoomTo(1, 0, 0)
+    const { scale, x, y } = REGIONS[regionKey].zoom
+    zoomTo(scale, x, y)
   }
 
   function handleSelectLandmark(landmarkKey) {
@@ -38,7 +39,8 @@ export default function DukeWorldMap({ user, onPointsEarned, memoryCounts = {} }
     if (zoomLevel === ZOOM_LEVELS.LANDMARK) {
       setZoomLevel(ZOOM_LEVELS.REGION)
       setActiveLandmark(null)
-      zoomTo(1, 0, 0)
+      const { scale, x, y } = REGIONS[activeRegion].zoom
+      zoomTo(scale, x, y)
     } else if (zoomLevel === ZOOM_LEVELS.REGION) {
       setZoomLevel(ZOOM_LEVELS.WORLD)
       setActiveRegion(null)
@@ -60,7 +62,7 @@ export default function DukeWorldMap({ user, onPointsEarned, memoryCounts = {} }
         height: '100%',
         overflow: 'hidden',
         position: 'relative',
-        background: zoomLevel === ZOOM_LEVELS.LANDMARK ? '#F5E6C8' : '#0A0E1A',
+        background: '#1a1208',
       }}
       onPointerDown={zoomLevel !== ZOOM_LEVELS.LANDMARK ? handlers.onPointerDown : undefined}
       onPointerMove={zoomLevel !== ZOOM_LEVELS.LANDMARK ? handlers.onPointerMove : undefined}

@@ -1,26 +1,6 @@
 import { useState } from 'react'
-import { REGIONS } from '../../lib/mapConfig'
+import { REGIONS, MAP_W, MAP_H } from '../../lib/mapConfig'
 import { getLandmarksForRegion } from '../../lib/landmarks'
-import LandmarkCard from './LandmarkCard'
-
-// Dynamic SVG imports
-const regionSvgs = {
-  west: new URL('../../assets/svg/west-campus.svg', import.meta.url).href,
-  east: new URL('../../assets/svg/east-campus.svg', import.meta.url).href,
-  central: new URL('../../assets/svg/central-campus.svg', import.meta.url).href,
-}
-
-const landmarkSvgs = {
-  chapel: new URL('../../assets/svg/chapel.svg', import.meta.url).href,
-  cameron: new URL('../../assets/svg/cameron.svg', import.meta.url).href,
-  quad: new URL('../../assets/svg/quad.svg', import.meta.url).href,
-  perkins: new URL('../../assets/svg/perkins.svg', import.meta.url).href,
-  marketplace: new URL('../../assets/svg/marketplace.svg', import.meta.url).href,
-  eastdorms: new URL('../../assets/svg/eastdorms.svg', import.meta.url).href,
-  baldwin: new URL('../../assets/svg/baldwin.svg', import.meta.url).href,
-  bryan: new URL('../../assets/svg/bryan.svg', import.meta.url).href,
-  brodhead: new URL('../../assets/svg/brodhead.svg', import.meta.url).href,
-}
 
 export default function RegionView({ region, onSelectLandmark, memoryCounts = {} }) {
   const [hovered, setHovered] = useState(null)
@@ -28,17 +8,17 @@ export default function RegionView({ region, onSelectLandmark, memoryCounts = {}
   const regionData = REGIONS[region]
 
   return (
-    <div style={{ position: 'relative', width: '1200px', height: '800px' }}>
-      {/* Region background */}
+    <div style={{ position: 'relative', width: `${MAP_W}px`, height: `${MAP_H}px`, flexShrink: 0 }}>
+      {/* Same campus map — DukeWorldMap has already zoomed/panned to this region */}
       <img
-        src={regionSvgs[region]}
-        alt={regionData.fictionalName}
+        src="/duke-campus-map.png"
+        alt="Duke Campus Map"
         style={{ width: '100%', height: '100%', display: 'block', userSelect: 'none' }}
         draggable={false}
       />
 
-      {/* Landmark buildings */}
-      {landmarks.map((landmark) => {
+      {/* Landmark hotspots */}
+      {landmarks.map(landmark => {
         const isHovered = hovered === landmark.id
         const count = memoryCounts[landmark.id] || 0
 
@@ -51,65 +31,111 @@ export default function RegionView({ region, onSelectLandmark, memoryCounts = {}
             onMouseLeave={() => setHovered(null)}
             style={{
               position: 'absolute',
-              left: landmark.position.x,
-              top: landmark.position.y,
-              transform: 'translate(-50%, -50%)',
+              left: `${landmark.mapX}%`,
+              top: `${landmark.mapY}%`,
+              transform: 'translate(-50%, -100%)',
               cursor: 'pointer',
               zIndex: 10,
-              padding: '12px',
             }}
           >
-            {/* Hover tooltip */}
+            {/* Tooltip card */}
             {isHovered && (
-              <LandmarkCard landmark={landmark} memoryCount={count} />
-            )}
-
-            {/* Building illustration */}
-            <div
-              style={{
-                position: 'relative',
-                filter: isHovered
-                  ? 'drop-shadow(0 0 12px #C9A84C) drop-shadow(0 0 24px rgba(201,168,76,0.5))'
-                  : 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))',
-                transition: 'filter 0.25s ease',
-                animation: isHovered ? 'goldPulse 1.5s ease-in-out infinite' : 'none',
-              }}
-            >
-              <img
-                src={landmarkSvgs[landmark.id]}
-                alt={landmark.realName}
-                style={{
-                  width: '140px',
-                  height: '105px',
-                  objectFit: 'contain',
-                  display: 'block',
-                  transform: isHovered ? 'scale(1.05)' : 'scale(1)',
-                  transition: 'transform 0.2s ease',
-                }}
-                draggable={false}
-              />
-            </div>
-
-            {/* Memory count badge */}
-            {count > 0 && (
-              <div
-                style={{
-                  position: 'absolute',
-                  top: '-6px',
-                  right: '-6px',
-                  background: regionData.color,
-                  color: '#0A0E1A',
-                  fontSize: '10px',
-                  fontWeight: 700,
-                  padding: '2px 6px',
-                  borderRadius: '999px',
-                  fontFamily: "'DM Sans', sans-serif",
-                  zIndex: 11,
-                }}
-              >
-                {count}
+              <div style={{
+                position: 'absolute',
+                bottom: '100%',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                background: 'rgba(10,14,26,0.95)',
+                border: `1px solid ${regionData.color}`,
+                borderRadius: '8px',
+                padding: '10px 14px',
+                width: '180px',
+                marginBottom: '6px',
+                pointerEvents: 'none',
+                whiteSpace: 'normal',
+              }}>
+                <div style={{ fontFamily: "'IM Fell English', serif", fontSize: '13px', color: regionData.color, marginBottom: '2px' }}>
+                  {landmark.fictionalName}
+                </div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '11px', color: '#9CA3AF', marginBottom: '4px' }}>
+                  {landmark.realName}
+                </div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10px', color: '#6B7280', lineHeight: '1.4' }}>
+                  {landmark.description}
+                </div>
+                {count > 0 && (
+                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: '10px', color: regionData.color, marginTop: '4px' }}>
+                    {count} {count === 1 ? 'memory' : 'memories'}
+                  </div>
+                )}
               </div>
             )}
+
+            {/* Pin marker */}
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+            }}>
+              {/* Pin head */}
+              <div style={{
+                width: isHovered ? '36px' : '28px',
+                height: isHovered ? '36px' : '28px',
+                borderRadius: '50% 50% 50% 0',
+                transform: 'rotate(-45deg)',
+                background: isHovered
+                  ? regionData.color
+                  : `${regionData.color}CC`,
+                border: `2px solid ${isHovered ? '#FFFFFF' : regionData.color}`,
+                boxShadow: isHovered
+                  ? `0 0 16px ${regionData.color}80, 0 2px 8px rgba(0,0,0,0.5)`
+                  : '0 2px 6px rgba(0,0,0,0.4)',
+                transition: 'all 0.15s ease',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                {/* Inner dot */}
+                <div style={{
+                  width: isHovered ? '10px' : '8px',
+                  height: isHovered ? '10px' : '8px',
+                  borderRadius: '50%',
+                  background: isHovered ? '#0A0E1A' : 'rgba(255,255,255,0.8)',
+                  transform: 'rotate(45deg)',
+                  transition: 'all 0.15s',
+                }}/>
+              </div>
+
+              {/* Pin stem */}
+              <div style={{
+                width: '2px',
+                height: '10px',
+                background: isHovered ? regionData.color : `${regionData.color}99`,
+                borderRadius: '0 0 2px 2px',
+                transition: 'all 0.15s',
+              }}/>
+            </div>
+
+            {/* Label below */}
+            <div style={{
+              marginTop: '2px',
+              background: isHovered ? 'rgba(10,14,26,0.95)' : 'rgba(10,14,26,0.7)',
+              border: `1px solid ${regionData.color}${isHovered ? 'CC' : '55'}`,
+              borderRadius: '4px',
+              padding: '2px 6px',
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '10px',
+              color: isHovered ? regionData.color : '#D1D5DB',
+              whiteSpace: 'nowrap',
+              transform: 'translateX(-50%) translateX(50%)',
+              // Offset so label is centered under pin
+              marginLeft: '-50%',
+              textAlign: 'center',
+              transition: 'all 0.15s',
+            }}>
+              {landmark.realName}
+              {count > 0 && <span style={{ color: regionData.color, marginLeft: '4px' }}>·{count}</span>}
+            </div>
           </div>
         )
       })}
