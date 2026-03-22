@@ -57,14 +57,15 @@ export default function WorldView({
           </filter>
         </defs>
 
-        {/* Layer 1a: blurred heat blobs for density (non-interactive) */}
-        {memories.map(memory => {
-          const color = YEAR_HEAT_COLORS[memory.year_tag] || DEFAULT_HEAT_COLOR
-          const cx = (memory.pin_x / 100) * MAP_W
-          const cy = (memory.pin_y / 100) * MAP_H
+        {/* Layer 1a: heatmap blobs at landmark locations, intensity = memory count */}
+        {landmarks.map(({ id, cx, cy, count }) => {
+          if (count === 0) return null
+          const intensity = Math.min(count / 15, 1)
+          const r = 30 + intensity * 40
+          const opacity = 0.15 + intensity * 0.35
           return (
-            <circle key={`blur-${memory.id}`} cx={cx} cy={cy} r={42}
-              fill={color} opacity={0.3} filter="url(#mem-heat-blur)"
+            <circle key={`heat-${id}`} cx={cx} cy={cy} r={r}
+              fill="#C9A84C" opacity={opacity} filter="url(#mem-heat-blur)"
               style={{ pointerEvents: 'none' }} />
           )
         })}
