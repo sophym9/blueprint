@@ -16,6 +16,7 @@ export default function DukeWorldMap({ user, onPointsEarned, memoryCounts = {} }
   const [composerSeedPoint, setComposerSeedPoint] = useState(null)
   const [focusPoint, setFocusPoint] = useState(null)
   const [yearFilter, setYearFilter] = useState(null)
+  const [visibilityFilter, setVisibilityFilter] = useState(null)
 
   const [pendingPin, setPendingPin] = useState(null)
   const [showForm, setShowForm] = useState(false)
@@ -108,10 +109,13 @@ export default function DukeWorldMap({ user, onPointsEarned, memoryCounts = {} }
 
   const isWorld = zoomLevel !== ZOOM_LEVELS.LANDMARK
 
-  const filteredMemories = useMemo(
-    () => yearFilter ? memories.filter(m => m.year_tag === yearFilter) : memories,
-    [memories, yearFilter],
-  )
+  const filteredMemories = useMemo(() => {
+    let result = memories
+    if (yearFilter) result = result.filter(m => m.year_tag === yearFilter)
+    if (visibilityFilter === 'public') result = result.filter(m => m.is_public)
+    if (visibilityFilter === 'private') result = result.filter(m => !m.is_public)
+    return result
+  }, [memories, yearFilter, visibilityFilter])
 
   return (
     <div
@@ -137,7 +141,12 @@ export default function DukeWorldMap({ user, onPointsEarned, memoryCounts = {} }
       />
 
       {isWorld && (
-        <YearFilter active={yearFilter} onChange={setYearFilter} />
+        <YearFilter
+          active={yearFilter}
+          onChange={setYearFilter}
+          visibility={visibilityFilter}
+          onVisibilityChange={setVisibilityFilter}
+        />
       )}
 
       {!isWorld ? (
