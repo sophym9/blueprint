@@ -25,15 +25,10 @@ export default function CreateMemoryForm({
   const [isPublic, setIsPublic] = useState(initialIsPublic)
   const [songUrl, setSongUrl] = useState('')
   const [songUrlError, setSongUrlError] = useState(false)
-  const [sfxPrompt, setSfxPrompt] = useState('')
-  const [sfxUrl, setSfxUrl] = useState(null)
-  const [sfxGenerating, setSfxGenerating] = useState(false)
-  const [sfxError, setSfxError] = useState(null)
   const [uploading, setUploading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
   const fileInputRef = useRef(null)
-  const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 
   async function handlePhotoUpload(e) {
     const file = e.target.files[0]
@@ -47,23 +42,6 @@ export default function CreateMemoryForm({
       setPhotoUrl(res.data.url)
     } finally {
       setUploading(false)
-    }
-  }
-
-  async function handleGenerateSfx() {
-    if (!sfxPrompt.trim()) return
-    setSfxGenerating(true)
-    setSfxError(null)
-    try {
-      const res = await api.post('/memories/generate-sfx-preview', {
-        prompt: sfxPrompt.trim(),
-        duration_seconds: 5,
-      })
-      setSfxUrl(res.data.sfx_url)
-    } catch (err) {
-      setSfxError(err?.response?.data?.detail || 'Failed to generate sound effect')
-    } finally {
-      setSfxGenerating(false)
     }
   }
 
@@ -84,7 +62,6 @@ export default function CreateMemoryForm({
         photo_url: photoUrl || null,
         audio_url: audioUrl || null,
         song_url: cleanSong || null,
-        sfx_url: sfxUrl || null,
         is_public: isPublic,
       })
     } finally {
@@ -308,52 +285,6 @@ export default function CreateMemoryForm({
               </div>
             )}
 
-            {/* Sound effect generator */}
-            {!requireLogin && (
-              <div>
-                <label style={{ fontSize: '11px', color: '#6B7280', fontFamily: "'DM Sans', sans-serif", display: 'block', marginBottom: '4px' }}>
-                  🔊 Sound Effect
-                </label>
-                {sfxUrl ? (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <audio src={`${apiBase}${sfxUrl}`} controls style={{ height: '32px', flex: 1 }} />
-                    <button type="button" onClick={() => { setSfxUrl(null); setSfxPrompt('') }}
-                      style={{ background: 'none', border: 'none', color: '#6B7280', cursor: 'pointer', fontSize: '14px', flexShrink: 0 }}>✕</button>
-                  </div>
-                ) : (
-                  <div style={{ display: 'flex', gap: '6px' }}>
-                    <input
-                      type="text"
-                      value={sfxPrompt}
-                      onChange={e => { setSfxPrompt(e.target.value); setSfxError(null) }}
-                      placeholder="Describe a sound... e.g. campus bells ringing"
-                      onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleGenerateSfx())}
-                      style={{
-                        flex: 1, background: 'rgba(255,255,255,0.04)',
-                        border: `1px solid ${sfxError ? '#EF4444' : 'rgba(99,102,241,0.3)'}`,
-                        borderRadius: '6px', padding: '7px 10px', color: '#E5E7EB',
-                        fontSize: '12px', fontFamily: "'DM Sans', sans-serif", outline: 'none',
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={handleGenerateSfx}
-                      disabled={sfxGenerating || !sfxPrompt.trim()}
-                      style={{
-                        background: sfxGenerating ? '#4B5563' : 'rgba(99,102,241,0.8)',
-                        border: 'none', color: '#fff', borderRadius: '6px',
-                        padding: '7px 12px', cursor: sfxGenerating ? 'wait' : 'pointer',
-                        fontSize: '11px', fontWeight: 600, fontFamily: "'DM Sans', sans-serif",
-                        flexShrink: 0, whiteSpace: 'nowrap',
-                      }}
-                    >
-                      {sfxGenerating ? '...' : 'Generate'}
-                    </button>
-                  </div>
-                )}
-                {sfxError && <p style={{ fontSize: '11px', color: '#FCA5A5', margin: '3px 0 0', fontFamily: "'DM Sans', sans-serif" }}>{sfxError}</p>}
-              </div>
-            )}
 
             {errorMessage ? (
               <p style={{ margin: 0, color: '#FCA5A5', fontSize: '12px', fontFamily: "'DM Sans', sans-serif" }}>
