@@ -10,9 +10,12 @@ const YEAR_HEAT_COLORS = {
 }
 const DEFAULT_HEAT_COLOR = '#C9A84C'
 
+const DOT_ZOOM_THRESHOLD = 1.8
+
 export default function WorldView({
   onSelectLandmark, onSelectMapPoint, onSelectMemory,
   memoryCounts = {}, memories = [], pendingPin = null,
+  zoomScale = 1,
 }) {
   const [hovered, setHovered] = useState(null)
 
@@ -66,14 +69,15 @@ export default function WorldView({
           )
         })}
 
-        {/* Layer 1b: clickable memory dots */}
-        {memories.map(memory => {
+        {/* Layer 1b: clickable memory dots — visible only when zoomed in */}
+        {zoomScale >= DOT_ZOOM_THRESHOLD && memories.map(memory => {
           const color = YEAR_HEAT_COLORS[memory.year_tag] || DEFAULT_HEAT_COLOR
           const cx = (memory.pin_x / 100) * MAP_W
           const cy = (memory.pin_y / 100) * MAP_H
+          const fadeIn = Math.min((zoomScale - DOT_ZOOM_THRESHOLD) / 0.4, 1)
           return (
             <g key={`dot-${memory.id}`}
-              style={{ cursor: 'pointer' }}
+              style={{ cursor: 'pointer', opacity: fadeIn, transition: 'opacity 0.2s' }}
               onClick={e => { e.stopPropagation(); onSelectMemory?.(memory) }}
               onPointerDown={e => e.stopPropagation()}
             >

@@ -160,6 +160,7 @@ export default function DukeWorldMap({ user, onPointsEarned, memoryCounts = {} }
             memoryCounts={memoryCounts}
             memories={memories}
             pendingPin={pendingPin}
+            zoomScale={transform.scale}
           />
         </div>
       )}
