@@ -2,7 +2,7 @@
 
 > *"Every story deserves to be remembered."*
 
-A sentimental memory map for Duke's Class of 2026. Seniors pin memories to a fantasy RPG-themed illustrated map of Duke's campus — tagging moments to real landmarks, attaching photos, audio recordings, and songs. Built for HackDuke 2026.
+A sentimental memory map for Duke's Class of 2026. Seniors pin memories to a fantasy RPG-themed illustrated map of Duke's campus, tagging moments to real landmarks, attaching photos, audio recordings, and songs. Built for HackDuke 2026.
 
 ---
 
@@ -71,15 +71,28 @@ hackduke-2026/
 
 ---
 
+## Auth0 Integration
+
+Last Chapter uses [Auth0](https://auth0.com) for Google OAuth, implemented via a manual **PKCE (Proof Key for Code Exchange)** flow — no SDK dependency. Users can sign in with their Google account in addition to email/password.
+
+**Flow:**
+1. Frontend generates a PKCE verifier + SHA-256 challenge
+2. Redirects to Auth0's `/authorize` endpoint
+3. Auth0 handles Google OAuth and redirects back with an authorization code
+4. Backend exchanges the code for tokens via Auth0's `/oauth/token`, then calls `/userinfo` to get the user's email and profile
+5. Backend finds or creates the user in the local DB and returns a standard app JWT — session is identical to email/password login from that point
+
+---
+
 ## AI Usage
 
 This project was built with AI assistance:
 
 - **[Claude](https://claude.ai) by Anthropic** — architecture design, code generation, debugging, and implementation across the full stack
-- **[NanoBanana](https://nanobanana.ai)** — AI-assisted development tooling
+- **[NanoBanana](https://nanobanana.ai)** — AI-assisted image generation
 
 ---
 
 ## Team
 
-Built at HackDuke 2026 by Duke Class of 2026.
+Built at HackDuke 2026 by Sophie Mansoor and Meeraa Ramakrishnan
