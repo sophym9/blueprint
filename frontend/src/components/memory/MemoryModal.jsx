@@ -100,13 +100,14 @@ export default function MemoryModal({ memory, user, onClose, onAddReaction, onRe
       }}
     >
       <div
-        className="animate-loot-open holographic-hover"
+        className="animate-loot-open"
         onClick={e => e.stopPropagation()}
         style={{
           background: '#111827', border: `2px solid ${borderColor}`,
           borderRadius: '12px', width: '100%', maxWidth: '440px',
+          maxHeight: '90vh', overflowY: 'auto',
           boxShadow: `0 0 32px ${borderColor}40, 0 24px 48px rgba(0,0,0,0.6)`,
-          overflow: 'hidden', position: 'relative',
+          position: 'relative',
         }}
       >
         <div style={{ height: '4px', background: borderColor }} />

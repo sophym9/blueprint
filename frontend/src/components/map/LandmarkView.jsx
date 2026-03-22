@@ -22,6 +22,7 @@ export default function LandmarkView({
   const { memories, loading, fetchMemories, createMemory, updateMemory, deleteMemory, addReaction, removeReaction } = useMemories()
   const [selectedMemory, setSelectedMemory] = useState(null)
   const [pendingPin, setPendingPin] = useState(null) // { pin_x, pin_y }
+  const [showForm, setShowForm] = useState(false)
   const [submitError, setSubmitError] = useState(null)
   const containerRef = useRef(null)
 
@@ -59,6 +60,7 @@ export default function LandmarkView({
     const pin_y = clampPercent(mapFocusY + (screen_y - 50) / ZOOM_SCALE)
     setSubmitError(null)
     setPendingPin({ pin_x, pin_y })
+    setShowForm(true)
   }
 
   async function handleCreateMemory(formData) {
@@ -197,15 +199,53 @@ export default function LandmarkView({
         </div>
       )}
 
+      {/* Confirm pin button — shown after tap, before form opens */}
+      {pendingPin && !showForm && !selectedMemory && (
+        <div
+          className="create-memory-form"
+          style={{
+            position: 'fixed', bottom: '24px', left: '50%',
+            transform: 'translateX(-50%)',
+            display: 'flex', gap: '8px', zIndex: 90,
+          }}
+        >
+          <button
+            onClick={e => { e.stopPropagation(); setShowForm(true) }}
+            className="font-display"
+            style={{
+              background: 'linear-gradient(135deg, #C9A84C, #E8C56A)',
+              border: 'none', color: '#0A0E1A',
+              borderRadius: '999px', padding: '10px 24px',
+              cursor: 'pointer', fontSize: '14px',
+              letterSpacing: '0.08em',
+              boxShadow: '0 0 20px rgba(201,168,76,0.5)',
+            }}
+          >
+            📍 Drop Pin Here
+          </button>
+          <button
+            onClick={e => { e.stopPropagation(); setPendingPin(null); setSubmitError(null) }}
+            style={{
+              background: 'rgba(10,14,26,0.85)', border: '1px solid #374151',
+              color: '#6B7280', borderRadius: '999px',
+              padding: '10px 16px', cursor: 'pointer', fontSize: '13px',
+              fontFamily: "'DM Sans', sans-serif",
+            }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* Create memory form */}
-      {pendingPin && !selectedMemory && (
+      {pendingPin && showForm && !selectedMemory && (
         <CreateMemoryForm
           onSubmit={handleCreateMemory}
           onCancel={() => {
             setPendingPin(null)
+            setShowForm(false)
             setSubmitError(null)
           }}
-          anchor={pendingPinScreen}
           requireLogin={!user}
           onLoginRequired={() => navigate('/login')}
           errorMessage={submitError}

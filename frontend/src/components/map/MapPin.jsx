@@ -27,10 +27,7 @@ export default function MapPin({ memory, onClick }) {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          transition: 'transform 0.15s',
         }}
-        onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.2)'}
-        onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
       >
         {/* Pin head */}
         <div

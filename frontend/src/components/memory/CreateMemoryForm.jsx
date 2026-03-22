@@ -13,7 +13,6 @@ const YEAR_OPTIONS = [
 export default function CreateMemoryForm({
   onSubmit,
   onCancel,
-  anchor = null,
   requireLogin = false,
   onLoginRequired,
   errorMessage = null,
@@ -26,6 +25,7 @@ export default function CreateMemoryForm({
   const [isPublic, setIsPublic] = useState(initialIsPublic)
   const [uploading, setUploading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [collapsed, setCollapsed] = useState(false)
   const fileInputRef = useRef(null)
 
   async function handlePhotoUpload(e) {
@@ -64,274 +64,239 @@ export default function CreateMemoryForm({
     <div
       className="create-memory-form"
       style={{
-        position: anchor ? 'absolute' : 'fixed',
-        inset: anchor ? 0 : 0,
-        background: anchor ? 'transparent' : 'rgba(0,0,0,0.5)',
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
         display: 'flex',
-        alignItems: anchor ? 'stretch' : 'flex-end',
-        justifyContent: anchor ? 'stretch' : 'center',
+        justifyContent: 'center',
         zIndex: 90,
-        pointerEvents: anchor ? 'none' : 'auto',
+        pointerEvents: 'none',
       }}
-      onClick={onCancel}
     >
       <form
         className="animate-slide-up"
         onClick={e => e.stopPropagation()}
         onSubmit={handleSubmit}
         style={{
-          position: anchor ? 'absolute' : 'relative',
-          left: anchor ? `${anchor.pin_x}%` : undefined,
-          top: anchor ? `${anchor.pin_y}%` : undefined,
-          transform: anchor ? 'translate(18px, -22px)' : undefined,
           background: '#111827',
           border: '1px solid rgba(201,168,76,0.3)',
           borderTop: '2px solid #C9A84C',
-          borderRadius: anchor ? '12px' : '12px 12px 0 0',
-          width: anchor ? '320px' : '100%',
-          maxWidth: anchor ? '320px' : '560px',
-          padding: '20px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '16px',
+          borderRadius: '12px 12px 0 0',
+          width: '100%',
+          maxWidth: '480px',
           pointerEvents: 'auto',
-          boxShadow: '0 18px 40px rgba(0,0,0,0.45)',
+          boxShadow: '0 -8px 32px rgba(0,0,0,0.5)',
+          overflow: 'hidden',
         }}
       >
-        {!anchor ? (
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <div style={{ width: '40px', height: '4px', background: '#C9A84C', borderRadius: '2px', opacity: 0.5 }} />
-          </div>
-        ) : null}
-
-        <h3
-          className="font-display"
-          style={{ color: '#C9A84C', fontSize: '20px', letterSpacing: '0.08em', margin: 0 }}
-        >
-          DROP A MEMORY
-        </h3>
-
-        {requireLogin ? (
-          <p
-            style={{
-              margin: 0,
-              color: '#D1D5DB',
-              fontSize: '13px',
-              lineHeight: '1.5',
-              fontFamily: "'DM Sans', sans-serif",
-            }}
-          >
-            Log in first to save a memory at this spot.
-          </p>
-        ) : null}
-
-        <div>
-          <p style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '8px', fontFamily: "'DM Sans', sans-serif" }}>
-            Who can see this?
-          </p>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            {[
-              { label: 'Public', value: true, color: '#C9A84C', help: 'Visible on the map to everyone.' },
-              { label: 'Private', value: false, color: '#9CA3AF', help: 'Only visible to you.' },
-            ].map(option => (
-              <button
-                key={option.label}
-                type="button"
-                onClick={() => setIsPublic(option.value)}
-                disabled={requireLogin}
-                title={option.help}
-                style={{
-                  background: isPublic === option.value ? option.color : 'transparent',
-                  border: `1px solid ${option.color}`,
-                  color: isPublic === option.value ? '#0A0E1A' : option.color,
-                  borderRadius: '999px',
-                  padding: '6px 14px',
-                  cursor: requireLogin ? 'not-allowed' : 'pointer',
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  fontFamily: "'DM Sans', sans-serif",
-                  opacity: requireLogin ? 0.55 : 1,
-                }}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Memory text */}
-        <textarea
-          value={memoryText}
-          onChange={e => setMemoryText(e.target.value)}
-          placeholder="What happened here? Tell your story..."
-          rows={3}
-          disabled={requireLogin}
+        {/* Header — always visible, click to collapse/expand */}
+        <div
+          onClick={() => setCollapsed(c => !c)}
           style={{
-            background: 'rgba(255,255,255,0.04)',
-            border: '1px solid rgba(255,255,255,0.1)',
-            borderRadius: '8px',
-            padding: '12px',
-            color: '#E5E7EB',
-            fontSize: '14px',
-            fontFamily: "'DM Sans', sans-serif",
-            resize: 'none',
-            outline: 'none',
-            transition: 'border-color 0.15s',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '12px 16px',
+            cursor: 'pointer',
+            userSelect: 'none',
           }}
-          onFocus={e => e.target.style.borderColor = '#C9A84C'}
-          onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
-        />
-
-        {/* Year tag */}
-        <div>
-          <p style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '8px', fontFamily: "'DM Sans', sans-serif" }}>
-            When was this?
-          </p>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            {YEAR_OPTIONS.map(opt => (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => setYearTag(opt.value)}
-                disabled={requireLogin}
-                style={{
-                  background: yearTag === opt.value ? opt.color : 'transparent',
-                  border: `1px solid ${opt.color}`,
-                  color: yearTag === opt.value ? opt.textColor : opt.color,
-                  borderRadius: '999px',
-                  padding: '4px 14px',
-                  cursor: 'pointer',
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  fontFamily: "'DM Sans', sans-serif",
-                  transition: 'all 0.15s',
-                }}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Photo upload */}
-        <div>
-          <label style={{ fontSize: '12px', color: '#9CA3AF', fontFamily: "'DM Sans', sans-serif", display: 'block', marginBottom: '8px' }}>
-            📸 Photo
-          </label>
-          {photoUrl ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontSize: '12px', color: '#4ADE80', fontFamily: "'DM Sans', sans-serif" }}>✓ Photo uploaded</span>
-              <button
-                type="button"
-                onClick={() => setPhotoUrl(null)}
-                style={{ background: 'none', border: 'none', color: '#6B7280', cursor: 'pointer', fontSize: '14px' }}
-              >✕</button>
-            </div>
-          ) : (
-            <>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handlePhotoUpload}
-                style={{ display: 'none' }}
-              />
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading || requireLogin}
-                style={{
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1px dashed rgba(255,255,255,0.2)',
-                  borderRadius: '6px',
-                  padding: '8px 16px',
-                  cursor: uploading ? 'wait' : 'pointer',
-                  color: '#9CA3AF',
-                  fontSize: '13px',
-                  fontFamily: "'DM Sans', sans-serif",
-                }}
-              >
-                {uploading ? 'Uploading...' : '+ Add photo'}
-              </button>
-            </>
-          )}
-        </div>
-
-        {/* Audio recorder */}
-        {!requireLogin ? <AudioRecorder onAudioUrl={url => setAudioUrl(url)} /> : null}
-
-        {errorMessage ? (
-          <p
-            style={{
-              margin: 0,
-              color: '#FCA5A5',
-              fontSize: '12px',
-              fontFamily: "'DM Sans', sans-serif",
-            }}
+        >
+          <h3
+            className="font-display"
+            style={{ color: '#C9A84C', fontSize: '16px', letterSpacing: '0.08em', margin: 0 }}
           >
-            {errorMessage}
-          </p>
-        ) : null}
-
-        {/* Action buttons */}
-        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-          <button
-            type="button"
-            onClick={onCancel}
-            style={{
-              background: 'none',
-              border: '1px solid #374151',
-              color: '#6B7280',
-              borderRadius: '6px',
-              padding: '10px 20px',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontFamily: "'DM Sans', sans-serif",
-            }}
-          >
-            Cancel
-          </button>
-          {requireLogin ? (
+            📍 DROP A MEMORY
+          </h3>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ color: '#6B7280', fontSize: '18px', lineHeight: 1 }}>
+              {collapsed ? '▲' : '▼'}
+            </span>
             <button
               type="button"
-              onClick={onLoginRequired}
-              className="font-display"
+              onClick={e => { e.stopPropagation(); onCancel() }}
               style={{
-                background: 'linear-gradient(135deg, #C9A84C, #E8C56A)',
-                border: 'none',
-                color: '#0A0E1A',
-                borderRadius: '6px',
-                padding: '10px 24px',
-                cursor: 'pointer',
-                fontSize: '16px',
-                letterSpacing: '0.08em',
-                boxShadow: '0 0 12px rgba(201,168,76,0.3)',
+                background: 'none', border: 'none',
+                color: '#6B7280', cursor: 'pointer',
+                fontSize: '18px', lineHeight: 1, padding: '0 2px',
               }}
             >
-              LOG IN
+              ×
             </button>
-          ) : (
-            <button
-              type="submit"
-              disabled={submitting || (!memoryText && !photoUrl && !audioUrl)}
-              className="font-display"
-              style={{
-                background: submitting ? '#4B5563' : 'linear-gradient(135deg, #C9A84C, #E8C56A)',
-                border: 'none',
-                color: '#0A0E1A',
-                borderRadius: '6px',
-                padding: '10px 24px',
-                cursor: submitting ? 'wait' : 'pointer',
-                fontSize: '16px',
-                letterSpacing: '0.08em',
-                boxShadow: '0 0 12px rgba(201,168,76,0.3)',
-                transition: 'all 0.15s',
-              }}
-            >
-              {submitting ? 'PINNING...' : 'PIN IT'}
-            </button>
-          )}
+          </div>
         </div>
+
+        {/* Body — collapsable */}
+        {!collapsed && (
+          <div style={{ padding: '0 16px 16px', display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '60vh', overflowY: 'auto' }}>
+            {requireLogin ? (
+              <p style={{ margin: 0, color: '#D1D5DB', fontSize: '13px', lineHeight: '1.5', fontFamily: "'DM Sans', sans-serif" }}>
+                Log in first to save a memory at this spot.
+              </p>
+            ) : null}
+
+            {/* Public / Private */}
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <span style={{ fontSize: '11px', color: '#6B7280', fontFamily: "'DM Sans', sans-serif", flexShrink: 0 }}>Visibility:</span>
+              {[
+                { label: 'Public', value: true, color: '#C9A84C' },
+                { label: 'Private', value: false, color: '#9CA3AF' },
+              ].map(option => (
+                <button
+                  key={option.label}
+                  type="button"
+                  onClick={() => setIsPublic(option.value)}
+                  disabled={requireLogin}
+                  style={{
+                    background: isPublic === option.value ? option.color : 'transparent',
+                    border: `1px solid ${option.color}`,
+                    color: isPublic === option.value ? '#0A0E1A' : option.color,
+                    borderRadius: '999px',
+                    padding: '3px 12px',
+                    cursor: requireLogin ? 'not-allowed' : 'pointer',
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    fontFamily: "'DM Sans', sans-serif",
+                    opacity: requireLogin ? 0.55 : 1,
+                  }}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Memory text */}
+            <textarea
+              value={memoryText}
+              onChange={e => setMemoryText(e.target.value)}
+              placeholder="What happened here?"
+              rows={2}
+              disabled={requireLogin}
+              style={{
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: '8px',
+                padding: '10px 12px',
+                color: '#E5E7EB',
+                fontSize: '13px',
+                fontFamily: "'DM Sans', sans-serif",
+                resize: 'none',
+                outline: 'none',
+                transition: 'border-color 0.15s',
+              }}
+              onFocus={e => e.target.style.borderColor = '#C9A84C'}
+              onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
+            />
+
+            {/* Year tag */}
+            <div>
+              <p style={{ fontSize: '11px', color: '#6B7280', marginBottom: '6px', fontFamily: "'DM Sans', sans-serif" }}>When was this?</p>
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                {YEAR_OPTIONS.map(opt => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setYearTag(opt.value)}
+                    disabled={requireLogin}
+                    style={{
+                      background: yearTag === opt.value ? opt.color : 'transparent',
+                      border: `1px solid ${opt.color}`,
+                      color: yearTag === opt.value ? opt.textColor : opt.color,
+                      borderRadius: '999px',
+                      padding: '3px 12px',
+                      cursor: 'pointer',
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      fontFamily: "'DM Sans', sans-serif",
+                      transition: 'all 0.15s',
+                    }}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Photo upload */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontSize: '11px', color: '#6B7280', fontFamily: "'DM Sans', sans-serif" }}>📸</span>
+              {photoUrl ? (
+                <>
+                  <span style={{ fontSize: '12px', color: '#4ADE80', fontFamily: "'DM Sans', sans-serif" }}>✓ Photo uploaded</span>
+                  <button type="button" onClick={() => setPhotoUrl(null)} style={{ background: 'none', border: 'none', color: '#6B7280', cursor: 'pointer', fontSize: '14px' }}>✕</button>
+                </>
+              ) : (
+                <>
+                  <input ref={fileInputRef} type="file" accept="image/*" onChange={handlePhotoUpload} style={{ display: 'none' }} />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading || requireLogin}
+                    style={{
+                      background: 'rgba(255,255,255,0.04)',
+                      border: '1px dashed rgba(255,255,255,0.2)',
+                      borderRadius: '6px',
+                      padding: '5px 12px',
+                      cursor: uploading ? 'wait' : 'pointer',
+                      color: '#9CA3AF',
+                      fontSize: '12px',
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}
+                  >
+                    {uploading ? 'Uploading...' : '+ Add photo'}
+                  </button>
+                </>
+              )}
+            </div>
+
+            {/* Audio recorder */}
+            {!requireLogin ? <AudioRecorder onAudioUrl={url => setAudioUrl(url)} /> : null}
+
+            {errorMessage ? (
+              <p style={{ margin: 0, color: '#FCA5A5', fontSize: '12px', fontFamily: "'DM Sans', sans-serif" }}>
+                {errorMessage}
+              </p>
+            ) : null}
+
+            {/* Action buttons */}
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+              {requireLogin ? (
+                <button
+                  type="button"
+                  onClick={onLoginRequired}
+                  className="font-display"
+                  style={{
+                    background: 'linear-gradient(135deg, #C9A84C, #E8C56A)',
+                    border: 'none', color: '#0A0E1A',
+                    borderRadius: '6px', padding: '9px 20px',
+                    cursor: 'pointer', fontSize: '14px',
+                    letterSpacing: '0.08em',
+                    boxShadow: '0 0 12px rgba(201,168,76,0.3)',
+                  }}
+                >
+                  LOG IN
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  disabled={submitting || (!memoryText && !photoUrl && !audioUrl)}
+                  className="font-display"
+                  style={{
+                    background: submitting ? '#4B5563' : 'linear-gradient(135deg, #C9A84C, #E8C56A)',
+                    border: 'none', color: '#0A0E1A',
+                    borderRadius: '6px', padding: '9px 24px',
+                    cursor: submitting ? 'wait' : 'pointer',
+                    fontSize: '14px', letterSpacing: '0.08em',
+                    boxShadow: '0 0 12px rgba(201,168,76,0.3)',
+                    transition: 'all 0.15s',
+                  }}
+                >
+                  {submitting ? 'PINNING...' : 'PIN IT'}
+                </button>
+              )}
+            </div>
+          </div>
+        )}
       </form>
     </div>
   )
