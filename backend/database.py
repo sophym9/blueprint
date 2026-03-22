@@ -28,6 +28,7 @@ def run_migrations():
         "ALTER TABLE users ADD COLUMN password_hash VARCHAR",
         "ALTER TABLE users ADD COLUMN graduation_date VARCHAR",
         "ALTER TABLE memories ADD COLUMN song_url VARCHAR",
+        "ALTER TABLE memories ADD COLUMN sfx_url VARCHAR",
     ]
     with engine.connect() as conn:
         for stmt in add_column_stmts:

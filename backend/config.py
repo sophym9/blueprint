@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     uploads_dir: str = "uploads"
     auth0_domain: str = ""
     auth0_client_id: str = ""
+    elevenlabs_api_key: str = ""
 
     class Config:
         env_file = ".env"

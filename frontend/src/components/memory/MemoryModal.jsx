@@ -38,6 +38,10 @@ export default function MemoryModal({ memory, user, onClose, onAddReaction, onRe
   const [editSongUrlError, setEditSongUrlError] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [sharing, setSharing] = useState(false)
+  const [sfxPrompt, setSfxPrompt] = useState('')
+  const [sfxGenerating, setSfxGenerating] = useState(false)
+  const [sfxError, setSfxError] = useState(null)
+  const [showSfxInput, setShowSfxInput] = useState(false)
   const fileInputRef = useRef(null)
   const shareCardRef = useRef(null)
 
@@ -112,6 +116,25 @@ export default function MemoryModal({ memory, user, onClose, onAddReaction, onRe
       a.click()
     } finally {
       setSharing(false)
+    }
+  }
+
+  async function handleGenerateSfx() {
+    if (!sfxPrompt.trim()) return
+    setSfxGenerating(true)
+    setSfxError(null)
+    try {
+      const res = await api.post(`/memories/${memory.id}/generate-sfx`, {
+        prompt: sfxPrompt.trim(),
+        duration_seconds: 5,
+      })
+      await onUpdate({ sfx_url: res.data.sfx_url })
+      setShowSfxInput(false)
+      setSfxPrompt('')
+    } catch (err) {
+      setSfxError(err?.response?.data?.detail || 'Failed to generate sound effect')
+    } finally {
+      setSfxGenerating(false)
     }
   }
 
@@ -301,6 +324,76 @@ export default function MemoryModal({ memory, user, onClose, onAddReaction, onRe
                   </div>
                 </div>
               )}
+              {/* Sound effect player */}
+              {memory.sfx_url && (
+                <div style={{ marginBottom: '14px' }}>
+                  <p style={{ fontSize: '11px', color: '#9CA3AF', marginBottom: '6px', fontFamily: "'DM Sans', sans-serif" }}>🔊 Sound Effect</p>
+                  <audio src={`${apiBase}${memory.sfx_url}`} controls style={{ width: '100%', height: '36px' }} />
+                </div>
+              )}
+
+              {/* Generate SFX button (owner only, no existing sfx) */}
+              {isOwner && !memory.sfx_url && !showSfxInput && (
+                <button
+                  onClick={() => setShowSfxInput(true)}
+                  style={{
+                    background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.3)',
+                    color: '#818CF8', borderRadius: '6px', padding: '6px 14px',
+                    cursor: 'pointer', fontSize: '12px', fontFamily: "'DM Sans', sans-serif",
+                    marginBottom: '14px', display: 'block',
+                  }}
+                >
+                  🔊 Generate Sound Effect
+                </button>
+              )}
+
+              {/* SFX prompt input */}
+              {isOwner && showSfxInput && (
+                <div style={{ marginBottom: '14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0, fontFamily: "'DM Sans', sans-serif" }}>
+                    Describe the sound (e.g. "campus bells ringing at sunset")
+                  </p>
+                  <input
+                    type="text"
+                    value={sfxPrompt}
+                    onChange={e => setSfxPrompt(e.target.value)}
+                    placeholder="birds chirping on the quad..."
+                    onKeyDown={e => e.key === 'Enter' && handleGenerateSfx()}
+                    style={{
+                      width: '100%', boxSizing: 'border-box',
+                      background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(99,102,241,0.3)',
+                      borderRadius: '6px', padding: '8px 10px', color: '#E5E7EB',
+                      fontSize: '12px', fontFamily: "'DM Sans', sans-serif", outline: 'none',
+                    }}
+                  />
+                  {sfxError && <p style={{ fontSize: '11px', color: '#FCA5A5', margin: 0, fontFamily: "'DM Sans', sans-serif" }}>{sfxError}</p>}
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                      onClick={() => { setShowSfxInput(false); setSfxPrompt(''); setSfxError(null) }}
+                      style={{
+                        background: 'none', border: '1px solid #374151', color: '#6B7280',
+                        borderRadius: '6px', padding: '5px 12px', cursor: 'pointer',
+                        fontSize: '12px', fontFamily: "'DM Sans', sans-serif",
+                      }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleGenerateSfx}
+                      disabled={sfxGenerating || !sfxPrompt.trim()}
+                      style={{
+                        background: sfxGenerating ? '#4B5563' : 'rgba(99,102,241,0.8)',
+                        border: 'none', color: '#fff', borderRadius: '6px',
+                        padding: '5px 14px', cursor: sfxGenerating ? 'wait' : 'pointer',
+                        fontSize: '12px', fontWeight: 600, fontFamily: "'DM Sans', sans-serif",
+                      }}
+                    >
+                      {sfxGenerating ? 'Generating...' : 'Generate'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <div style={{ height: '1px', background: 'rgba(255,255,255,0.07)', marginBottom: '14px' }} />
               <ReactionBar memory={memory} user={user} onAddReaction={onAddReaction} onRemoveReaction={onRemoveReaction} />
             </>

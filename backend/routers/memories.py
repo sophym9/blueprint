@@ -1,4 +1,8 @@
+import uuid
+import os
+import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from typing import Optional, List
@@ -8,6 +12,7 @@ from models.user import User
 from schemas.memory import MemoryCreate, MemoryUpdate, MemoryResponse
 from services.auth import get_current_user, get_current_user_optional
 from services.points import calculate_points, award_points
+from config import settings
 
 router = APIRouter(prefix="/memories", tags=["memories"])
 
@@ -129,3 +134,78 @@ def delete_memory(
         raise HTTPException(status_code=403, detail="Not your memory")
     db.delete(memory)
     db.commit()
+
+
+class SfxRequest(BaseModel):
+    prompt: str
+    duration_seconds: float = 5.0
+
+
+@router.post("/{memory_id}/generate-sfx", response_model=MemoryResponse)
+def generate_sfx(
+    memory_id: str,
+    payload: SfxRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    if not settings.elevenlabs_api_key:
+        raise HTTPException(status_code=503, detail="ElevenLabs API key not configured")
+
+    memory = db.query(Memory).filter(Memory.id == memory_id).first()
+    if not memory:
+        raise HTTPException(status_code=404, detail="Memory not found")
+    if memory.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not your memory")
+
+    duration = max(0.5, min(payload.duration_seconds, 22.0))
+
+    resp = httpx.post(
+        "https://api.elevenlabs.io/v1/sound-generation",
+        headers={"xi-api-key": settings.elevenlabs_api_key},
+        json={"text": payload.prompt, "duration_seconds": duration},
+        timeout=30.0,
+    )
+    if resp.status_code != 200:
+        raise HTTPException(status_code=502, detail="Sound generation failed")
+
+    sfx_dir = os.path.join(settings.uploads_dir, "sfx")
+    os.makedirs(sfx_dir, exist_ok=True)
+    filename = f"{uuid.uuid4().hex}.mp3"
+    filepath = os.path.join(sfx_dir, filename)
+    with open(filepath, "wb") as f:
+        f.write(resp.content)
+
+    memory.sfx_url = f"/uploads/sfx/{filename}"
+    db.commit()
+    db.refresh(memory)
+    return _serialize(memory)
+
+
+@router.post("/generate-sfx-preview")
+def generate_sfx_preview(
+    payload: SfxRequest,
+    current_user: User = Depends(get_current_user),
+):
+    """Generate a sound effect and return the URL without attaching to a memory."""
+    if not settings.elevenlabs_api_key:
+        raise HTTPException(status_code=503, detail="ElevenLabs API key not configured")
+
+    duration = max(0.5, min(payload.duration_seconds, 22.0))
+
+    resp = httpx.post(
+        "https://api.elevenlabs.io/v1/sound-generation",
+        headers={"xi-api-key": settings.elevenlabs_api_key},
+        json={"text": payload.prompt, "duration_seconds": duration},
+        timeout=30.0,
+    )
+    if resp.status_code != 200:
+        raise HTTPException(status_code=502, detail="Sound generation failed")
+
+    sfx_dir = os.path.join(settings.uploads_dir, "sfx")
+    os.makedirs(sfx_dir, exist_ok=True)
+    filename = f"{uuid.uuid4().hex}.mp3"
+    filepath = os.path.join(sfx_dir, filename)
+    with open(filepath, "wb") as f:
+        f.write(resp.content)
+
+    return {"sfx_url": f"/uploads/sfx/{filename}"}

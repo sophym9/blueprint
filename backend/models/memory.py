@@ -18,6 +18,7 @@ class Memory(Base):
     photo_url = Column(String, nullable=True)
     audio_url = Column(String, nullable=True)
     song_url = Column(String, nullable=True)
+    sfx_url = Column(String, nullable=True)
     year_tag = Column(String, nullable=True)  # freshman|sophomore|junior|senior
     is_public = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

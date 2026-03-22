@@ -9,6 +9,7 @@ class MemoryUpdate(BaseModel):
     photo_url: Optional[str] = None
     audio_url: Optional[str] = None
     song_url: Optional[str] = None
+    sfx_url: Optional[str] = None
     year_tag: Optional[str] = None
 
 
@@ -21,6 +22,7 @@ class MemoryCreate(BaseModel):
     photo_url: Optional[str] = None
     audio_url: Optional[str] = None
     song_url: Optional[str] = None
+    sfx_url: Optional[str] = None
     year_tag: Optional[str] = None
     is_public: bool = True
 
@@ -38,6 +40,7 @@ class MemoryResponse(BaseModel):
     photo_url: Optional[str] = None
     audio_url: Optional[str] = None
     song_url: Optional[str] = None
+    sfx_url: Optional[str] = None
     year_tag: Optional[str] = None
     is_public: bool
     created_at: datetime
