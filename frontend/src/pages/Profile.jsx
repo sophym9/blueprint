@@ -5,12 +5,6 @@ import { compressImage } from '../lib/compressImage'
 import YearBadge from '../components/memory/YearBadge'
 import MemoryModal from '../components/memory/MemoryModal'
 import { LANDMARKS } from '../lib/landmarks'
-import { REGIONS } from '../lib/mapConfig'
-
-const ZONES = [
-  { key: 'west', label: 'Western Keep', color: '#4A90E2' },
-  { key: 'central', label: 'Central Crossing', color: '#C9A84C' },
-]
 
 export default function Profile({ user, onUserUpdate }) {
   const [memories, setMemories] = useState([])
@@ -236,47 +230,10 @@ export default function Profile({ user, onUserUpdate }) {
                     Memories Pinned
                   </span>
                 </div>
-                <div>
-                  <span className="font-display" style={{ color: '#FACC15', fontSize: '24px' }}>
-                    {(user.zones_unlocked || []).length}/2
-                  </span>
-                  <span style={{ fontSize: '11px', color: '#6B7280', display: 'block', fontFamily: "'DM Sans', sans-serif" }}>
-                    Zones Explored
-                  </span>
-                </div>
               </div>
             </div>
           </div>
 
-          {/* Zone badges */}
-          <div style={{ display: 'flex', gap: '10px', marginTop: '20px', flexWrap: 'wrap' }}>
-            {ZONES.map(zone => {
-              const unlocked = (user.zones_unlocked || []).includes(zone.key)
-              return (
-                <div
-                  key={zone.key}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    background: unlocked ? `${zone.color}15` : 'rgba(255,255,255,0.02)',
-                    border: `1px solid ${unlocked ? zone.color + '60' : 'rgba(255,255,255,0.06)'}`,
-                    borderRadius: '999px',
-                    padding: '4px 12px',
-                    opacity: unlocked ? 1 : 0.4,
-                  }}
-                >
-                  <span style={{ fontSize: '12px' }}>{unlocked ? '⚔' : '🔒'}</span>
-                  <span
-                    className="font-map"
-                    style={{ fontSize: '12px', color: unlocked ? zone.color : '#6B7280' }}
-                  >
-                    {zone.label}
-                  </span>
-                </div>
-              )
-            })}
-          </div>
         </div>
 
         {/* Memories grid */}
