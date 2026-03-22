@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from typing import Optional
 from fastapi import Header, HTTPException, Depends
 from sqlalchemy.orm import Session
 from jose import JWTError, jwt
@@ -43,3 +44,24 @@ def get_current_user(authorization: str = Header(...), db: Session = Depends(get
     if not user:
         raise credentials_error
     return user
+
+
+def get_current_user_optional(
+    authorization: Optional[str] = Header(None),
+    db: Session = Depends(get_db),
+) -> Optional[User]:
+    if not authorization:
+        return None
+
+    try:
+        scheme, token = authorization.split()
+        if scheme.lower() != "bearer":
+            return None
+        payload = jwt.decode(token, settings.secret_key, algorithms=[ALGORITHM])
+        user_id: str = payload.get("sub")
+        if not user_id:
+            return None
+    except (JWTError, ValueError, AttributeError):
+        return None
+
+    return db.query(User).filter(User.id == user_id).first()

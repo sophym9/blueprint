@@ -4,13 +4,6 @@ from datetime import datetime
 from schemas.reaction import ReactionResponse
 
 
-class MemoryUpdate(BaseModel):
-    memory_text: Optional[str] = None
-    photo_url: Optional[str] = None
-    audio_url: Optional[str] = None
-    year_tag: Optional[str] = None
-
-
 class MemoryCreate(BaseModel):
     landmark_id: str
     region: str

@@ -7,11 +7,19 @@ import MemoryModal from '../memory/MemoryModal'
 import CreateMemoryForm from '../memory/CreateMemoryForm'
 
 const ZOOM_SCALE = 2.35
+const clampPercent = (value) => Math.max(0, Math.min(100, value))
 
-export default function LandmarkView({ landmarkId, user, onPointsEarned, focusPoint = null }) {
+export default function LandmarkView({
+  landmarkId,
+  user,
+  onPointsEarned,
+  initialPendingPin = null,
+  onComposerConsumed,
+  focusPoint = null,
+}) {
   const landmark = LANDMARKS[landmarkId]
   const navigate = useNavigate()
-  const { memories, loading, fetchMemories, createMemory, updateMemory, deleteMemory, addReaction, removeReaction } = useMemories()
+  const { memories, loading, fetchMemories, createMemory, addReaction, removeReaction } = useMemories()
   const [selectedMemory, setSelectedMemory] = useState(null)
   const [pendingPin, setPendingPin] = useState(null) // { pin_x, pin_y }
   const [submitError, setSubmitError] = useState(null)
@@ -20,6 +28,21 @@ export default function LandmarkView({ landmarkId, user, onPointsEarned, focusPo
   useEffect(() => {
     fetchMemories({ landmarkId })
   }, [landmarkId])
+
+  useEffect(() => {
+    if (!initialPendingPin) return
+    setSelectedMemory(null)
+    setSubmitError(null)
+    setPendingPin(initialPendingPin)
+    onComposerConsumed?.()
+  }, [initialPendingPin, onComposerConsumed])
+
+  function projectMapPointToScreen(point) {
+    return {
+      pin_x: 50 + (point.pin_x - mapFocusX) * ZOOM_SCALE,
+      pin_y: 50 + (point.pin_y - mapFocusY) * ZOOM_SCALE,
+    }
+  }
 
   function handleContainerClick(e) {
     if (
@@ -30,8 +53,10 @@ export default function LandmarkView({ landmarkId, user, onPointsEarned, focusPo
       return
     }
     const rect = containerRef.current.getBoundingClientRect()
-    const pin_x = ((e.clientX - rect.left) / rect.width) * 100
-    const pin_y = ((e.clientY - rect.top) / rect.height) * 100
+    const screen_x = ((e.clientX - rect.left) / rect.width) * 100
+    const screen_y = ((e.clientY - rect.top) / rect.height) * 100
+    const pin_x = clampPercent(mapFocusX + (screen_x - 50) / ZOOM_SCALE)
+    const pin_y = clampPercent(mapFocusY + (screen_y - 50) / ZOOM_SCALE)
     setSubmitError(null)
     setPendingPin({ pin_x, pin_y })
   }
@@ -68,6 +93,7 @@ export default function LandmarkView({ landmarkId, user, onPointsEarned, focusPo
   const mapFocusY = focusPoint?.y ?? landmark.mapY
   const imageLeft = `${50 - mapFocusX * ZOOM_SCALE}%`
   const imageTop = `${50 - mapFocusY * ZOOM_SCALE}%`
+  const pendingPinScreen = pendingPin ? projectMapPointToScreen(pendingPin) : null
 
   return (
     <div
@@ -100,19 +126,6 @@ export default function LandmarkView({ landmarkId, user, onPointsEarned, focusPo
         draggable={false}
       />
 
-      {/* Click-to-pin hint */}
-      {user && !pendingPin && !selectedMemory && (
-        <div style={{
-          position: 'absolute', top: '16px', right: '16px', zIndex: 20,
-          background: 'rgba(10,14,26,0.75)', border: '1px solid rgba(201,168,76,0.3)',
-          borderRadius: '6px', padding: '6px 12px',
-          fontFamily: "'DM Sans', sans-serif", fontSize: '12px', color: '#9CA3AF',
-          pointerEvents: 'none',
-        }}>
-          Tap anywhere to drop a memory
-        </div>
-      )}
-
       {/* Landmark tag */}
       <div
         style={{
@@ -139,19 +152,19 @@ export default function LandmarkView({ landmarkId, user, onPointsEarned, focusPo
       {memories.map(memory => (
         <div key={memory.id} className="map-pin">
           <MapPin
-            memory={memory}
+            memory={{ ...memory, ...projectMapPointToScreen(memory) }}
             onClick={e => { e.stopPropagation(); setSelectedMemory(memory) }}
           />
         </div>
       ))}
 
       {/* Pending pin crosshair */}
-      {pendingPin && (
+      {pendingPinScreen && (
         <div
           style={{
             position: 'absolute',
-            left: `${pendingPin.pin_x}%`,
-            top: `${pendingPin.pin_y}%`,
+            left: `${pendingPinScreen.pin_x}%`,
+            top: `${pendingPinScreen.pin_y}%`,
             transform: 'translate(-50%, -50%)',
             width: '20px',
             height: '20px',
@@ -167,24 +180,16 @@ export default function LandmarkView({ landmarkId, user, onPointsEarned, focusPo
       {selectedMemory && (
         <div className="memory-modal">
           <MemoryModal
-            memory={memories.find(m => m.id === selectedMemory.id) || selectedMemory}
+            memory={selectedMemory}
             user={user}
             onClose={() => setSelectedMemory(null)}
             onAddReaction={addReaction}
             onRemoveReaction={removeReaction}
-            onUpdate={async (data) => {
-              const updated = await updateMemory(selectedMemory.id, data)
-              setSelectedMemory(updated)
-            }}
-            onDelete={async () => {
-              await deleteMemory(selectedMemory.id)
-              setSelectedMemory(null)
-            }}
           />
         </div>
       )}
 
-      {/* Create memory form — bottom sheet, no floating anchor */}
+      {/* Create memory form */}
       {pendingPin && !selectedMemory && (
         <CreateMemoryForm
           onSubmit={handleCreateMemory}
@@ -192,6 +197,7 @@ export default function LandmarkView({ landmarkId, user, onPointsEarned, focusPo
             setPendingPin(null)
             setSubmitError(null)
           }}
+          anchor={pendingPinScreen}
           requireLogin={!user}
           onLoginRequired={() => navigate('/login')}
           errorMessage={submitError}

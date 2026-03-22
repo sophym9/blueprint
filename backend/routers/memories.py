@@ -1,11 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 from typing import Optional, List
 from database import get_db
 from models.memory import Memory
 from models.user import User
-from schemas.memory import MemoryCreate, MemoryUpdate, MemoryResponse
-from services.auth import get_current_user
+from schemas.memory import MemoryCreate, MemoryResponse
+from services.auth import get_current_user, get_current_user_optional
 from services.points import calculate_points, award_points
 
 router = APIRouter(prefix="/memories", tags=["memories"])
@@ -49,9 +50,30 @@ def create_memory(
 def list_memories(
     landmark_id: Optional[str] = Query(None),
     region: Optional[str] = Query(None),
+    visibility: str = Query("all"),
     db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user_optional),
 ):
-    q = db.query(Memory).filter(Memory.is_public == True)
+    q = db.query(Memory)
+
+    if current_user:
+        q = q.filter(or_(Memory.is_public == True, Memory.user_id == current_user.id))
+    else:
+        q = q.filter(Memory.is_public == True)
+
+    if visibility == "public":
+        q = q.filter(Memory.is_public == True)
+    elif visibility == "private":
+        if not current_user:
+            return []
+        q = q.filter(Memory.user_id == current_user.id, Memory.is_public == False)
+    elif visibility == "mine":
+        if not current_user:
+            return []
+        q = q.filter(Memory.user_id == current_user.id)
+    elif visibility != "all":
+        raise HTTPException(status_code=400, detail="Invalid visibility filter")
+
     if landmark_id:
         q = q.filter(Memory.landmark_id == landmark_id)
     if region:
@@ -61,29 +83,16 @@ def list_memories(
 
 
 @router.get("/{memory_id}", response_model=MemoryResponse)
-def get_memory(memory_id: str, db: Session = Depends(get_db)):
-    memory = db.query(Memory).filter(Memory.id == memory_id).first()
-    if not memory:
-        raise HTTPException(status_code=404, detail="Memory not found")
-    return _serialize(memory)
-
-
-@router.patch("/{memory_id}", response_model=MemoryResponse)
-def update_memory(
+def get_memory(
     memory_id: str,
-    payload: MemoryUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: Optional[User] = Depends(get_current_user_optional),
 ):
     memory = db.query(Memory).filter(Memory.id == memory_id).first()
     if not memory:
         raise HTTPException(status_code=404, detail="Memory not found")
-    if memory.user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not your memory")
-    for field, value in payload.model_dump(exclude_unset=True).items():
-        setattr(memory, field, value)
-    db.commit()
-    db.refresh(memory)
+    if not memory.is_public and (not current_user or current_user.id != memory.user_id):
+        raise HTTPException(status_code=404, detail="Memory not found")
     return _serialize(memory)
 
 

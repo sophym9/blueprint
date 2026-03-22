@@ -1,6 +1,5 @@
 import { useState, useRef } from 'react'
 import api from '../../lib/api'
-import { compressImage } from '../../lib/compressImage'
 import AudioRecorder from './AudioRecorder'
 
 const YEAR_OPTIONS = [
@@ -17,11 +16,13 @@ export default function CreateMemoryForm({
   requireLogin = false,
   onLoginRequired,
   errorMessage = null,
+  initialIsPublic = true,
 }) {
   const [memoryText, setMemoryText] = useState('')
   const [yearTag, setYearTag] = useState('senior')
   const [photoUrl, setPhotoUrl] = useState(null)
   const [audioUrl, setAudioUrl] = useState(null)
+  const [isPublic, setIsPublic] = useState(initialIsPublic)
   const [uploading, setUploading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const fileInputRef = useRef(null)
@@ -31,10 +32,11 @@ export default function CreateMemoryForm({
     if (!file) return
     setUploading(true)
     try {
-      const compressed = await compressImage(file)
       const formData = new FormData()
-      formData.append('file', compressed)
-      const res = await api.post('/upload/photo', formData)
+      formData.append('file', file)
+      const res = await api.post('/upload/photo', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
       setPhotoUrl(res.data.url)
     } finally {
       setUploading(false)
@@ -51,7 +53,7 @@ export default function CreateMemoryForm({
         year_tag: yearTag,
         photo_url: photoUrl || null,
         audio_url: audioUrl || null,
-        is_public: true,
+        is_public: isPublic,
       })
     } finally {
       setSubmitting(false)
@@ -122,6 +124,40 @@ export default function CreateMemoryForm({
             Log in first to save a memory at this spot.
           </p>
         ) : null}
+
+        <div>
+          <p style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '8px', fontFamily: "'DM Sans', sans-serif" }}>
+            Who can see this?
+          </p>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            {[
+              { label: 'Public', value: true, color: '#C9A84C', help: 'Visible on the map to everyone.' },
+              { label: 'Private', value: false, color: '#9CA3AF', help: 'Only visible to you.' },
+            ].map(option => (
+              <button
+                key={option.label}
+                type="button"
+                onClick={() => setIsPublic(option.value)}
+                disabled={requireLogin}
+                title={option.help}
+                style={{
+                  background: isPublic === option.value ? option.color : 'transparent',
+                  border: `1px solid ${option.color}`,
+                  color: isPublic === option.value ? '#0A0E1A' : option.color,
+                  borderRadius: '999px',
+                  padding: '6px 14px',
+                  cursor: requireLogin ? 'not-allowed' : 'pointer',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  fontFamily: "'DM Sans', sans-serif",
+                  opacity: requireLogin ? 0.55 : 1,
+                }}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {/* Memory text */}
         <textarea
