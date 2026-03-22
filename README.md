@@ -36,8 +36,8 @@ A sentimental memory map for Duke's Class of 2026. Seniors pin memories to a fan
 Requires Docker and Docker Compose.
 
 ```bash
-git clone https://github.com/sophym9/hackduke-2026.git
-cd hackduke-2026
+git clone https://github.com/sophym9/blueprint.git
+cd blueprint
 docker compose up --build
 ```
 
