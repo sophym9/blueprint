@@ -58,7 +58,7 @@ The backend reads from environment variables (set in `docker-compose.yml`):
 ## Project Structure
 
 ```
-hackduke-2026/
+blueprint/
   backend/          FastAPI app, models, routers, services
   frontend/         React + Vite app
     src/
@@ -73,7 +73,7 @@ hackduke-2026/
 
 ## Auth0 Integration
 
-Last Chapter uses [Auth0](https://auth0.com) for Google OAuth, implemented via a manual **PKCE (Proof Key for Code Exchange)** flow — no SDK dependency. Users can sign in with their Google account in addition to email/password.
+Blueprint uses [Auth0](https://auth0.com) for Google OAuth, implemented via a manual **PKCE (Proof Key for Code Exchange)** flow — no SDK dependency. Users can sign in with their Google account in addition to email/password.
 
 **Flow:**
 1. Frontend generates a PKCE verifier + SHA-256 challenge
