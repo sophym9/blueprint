@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ZOOM_LEVELS, MAP_W, MAP_H } from '../../lib/mapConfig'
 import { useMapTransform } from '../../hooks/useMapTransform'
@@ -6,6 +6,7 @@ import { useMemories } from '../../hooks/useMemories'
 import WorldView from './WorldView'
 import LandmarkView from './LandmarkView'
 import MapControls from './MapControls'
+import YearFilter from './YearFilter'
 import CreateMemoryForm from '../memory/CreateMemoryForm'
 import MemoryModal from '../memory/MemoryModal'
 
@@ -14,6 +15,7 @@ export default function DukeWorldMap({ user, onPointsEarned, memoryCounts = {} }
   const [activeLandmark, setActiveLandmark] = useState(null)
   const [composerSeedPoint, setComposerSeedPoint] = useState(null)
   const [focusPoint, setFocusPoint] = useState(null)
+  const [yearFilter, setYearFilter] = useState(null)
 
   const [pendingPin, setPendingPin] = useState(null)
   const [showForm, setShowForm] = useState(false)
@@ -106,6 +108,11 @@ export default function DukeWorldMap({ user, onPointsEarned, memoryCounts = {} }
 
   const isWorld = zoomLevel !== ZOOM_LEVELS.LANDMARK
 
+  const filteredMemories = useMemo(
+    () => yearFilter ? memories.filter(m => m.year_tag === yearFilter) : memories,
+    [memories, yearFilter],
+  )
+
   return (
     <div
       ref={wrapperRef}
@@ -128,6 +135,10 @@ export default function DukeWorldMap({ user, onPointsEarned, memoryCounts = {} }
         onZoomIn={isWorld ? () => zoomTo(transform.scale + 0.4, transform.x, transform.y) : null}
         onZoomOut={isWorld ? () => zoomTo(transform.scale - 0.4, transform.x, transform.y) : null}
       />
+
+      {isWorld && (
+        <YearFilter active={yearFilter} onChange={setYearFilter} />
+      )}
 
       {!isWorld ? (
         <div style={{ width: '100%', height: '100%' }}>
@@ -158,7 +169,7 @@ export default function DukeWorldMap({ user, onPointsEarned, memoryCounts = {} }
             onSelectMapPoint={handleSelectMapPoint}
             onSelectMemory={setSelectedMemory}
             memoryCounts={memoryCounts}
-            memories={memories}
+            memories={filteredMemories}
             pendingPin={pendingPin}
             zoomScale={transform.scale}
           />
