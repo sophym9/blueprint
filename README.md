@@ -1,4 +1,4 @@
-# Last Chapter
+# Blueprint
 
 > *"Every story deserves to be remembered."*
 
