@@ -4,10 +4,10 @@ import { compressImage } from '../../lib/compressImage'
 import AudioRecorder from './AudioRecorder'
 
 const YEAR_OPTIONS = [
-  { value: 'freshman', label: 'Freshman', color: '#4ADE80', textColor: '#052e16' },
-  { value: 'sophomore', label: 'Sophomore', color: '#FACC15', textColor: '#1c1917' },
-  { value: 'junior', label: 'Junior', color: '#FB923C', textColor: '#1c1917' },
-  { value: 'senior', label: 'Senior', color: '#003087', textColor: '#ffffff' },
+  { value: 'freshman', label: 'Freshman', color: '#4ADE80', textColor: '#052e16', outline: '#4ADE80' },
+  { value: 'sophomore', label: 'Sophomore', color: '#FACC15', textColor: '#1c1917', outline: '#FACC15' },
+  { value: 'junior', label: 'Junior', color: '#FB923C', textColor: '#1c1917', outline: '#FB923C' },
+  { value: 'senior', label: 'Senior', color: '#003087', textColor: '#ffffff', outline: '#6B8CFF' },
 ]
 
 export default function CreateMemoryForm({
@@ -209,8 +209,8 @@ export default function CreateMemoryForm({
                     disabled={requireLogin}
                     style={{
                       background: yearTag === opt.value ? opt.color : 'transparent',
-                      border: `1px solid ${opt.color}`,
-                      color: yearTag === opt.value ? opt.textColor : opt.color,
+                      border: `1px solid ${yearTag === opt.value ? opt.color : opt.outline}`,
+                      color: yearTag === opt.value ? opt.textColor : opt.outline,
                       borderRadius: '999px',
                       padding: '3px 12px',
                       cursor: 'pointer',
