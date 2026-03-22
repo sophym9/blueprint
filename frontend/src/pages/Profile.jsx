@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../lib/api'
+import { compressImage } from '../lib/compressImage'
 import YearBadge from '../components/memory/YearBadge'
 import MemoryModal from '../components/memory/MemoryModal'
 import { LANDMARKS } from '../lib/landmarks'
@@ -11,11 +12,37 @@ const ZONES = [
   { key: 'central', label: 'Central Crossing', color: '#C9A84C' },
 ]
 
-export default function Profile({ user }) {
+export default function Profile({ user, onUserUpdate }) {
   const [memories, setMemories] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedMemory, setSelectedMemory] = useState(null)
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const avatarInputRef = useRef(null)
   const navigate = useNavigate()
+
+  async function handleAvatarUpload(e) {
+    const file = e.target.files[0]
+    if (!file) return
+    setUploadingAvatar(true)
+    try {
+      const compressed = await compressImage(file)
+      const formData = new FormData()
+      formData.append('file', compressed)
+      const res = await api.post('/upload/photo', formData)
+      await api.patch(`/users/${user.id}`, { avatar_url: res.data.url })
+      onUserUpdate?.({ ...user, avatar_url: res.data.url })
+    } finally {
+      setUploadingAvatar(false)
+    }
+  }
+
+  async function handleGraduationDateChange(e) {
+    const graduation_date = e.target.value
+    try {
+      await api.patch(`/users/${user.id}`, { graduation_date })
+      onUserUpdate?.({ ...user, graduation_date })
+    } catch {}
+  }
 
   async function handleUpdate(data) {
     const res = await api.patch(`/memories/${selectedMemory.id}`, data)
@@ -89,24 +116,47 @@ export default function Profile({ user }) {
 
           <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', position: 'relative' }}>
             {/* Avatar */}
-            <div
-              style={{
-                width: '80px',
-                height: '80px',
-                borderRadius: '50%',
-                background: 'linear-gradient(135deg, #003087, #C9A84C)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '32px',
-                color: '#FFFFFF',
-                fontWeight: 700,
-                fontFamily: "'DM Sans', sans-serif",
-                flexShrink: 0,
-                boxShadow: '0 0 24px rgba(201,168,76,0.3)',
-              }}
-            >
-              {user.name?.[0]?.toUpperCase() || '?'}
+            <div style={{ position: 'relative', flexShrink: 0 }}>
+              <input ref={avatarInputRef} type="file" accept="image/*" onChange={handleAvatarUpload} style={{ display: 'none' }} />
+              <div
+                onClick={() => avatarInputRef.current?.click()}
+                style={{
+                  width: '80px',
+                  height: '80px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #003087, #C9A84C)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '32px',
+                  color: '#FFFFFF',
+                  fontWeight: 700,
+                  fontFamily: "'DM Sans', sans-serif",
+                  boxShadow: '0 0 24px rgba(201,168,76,0.3)',
+                  cursor: 'pointer',
+                  overflow: 'hidden',
+                  position: 'relative',
+                }}
+              >
+                {user.avatar_url
+                  ? <img src={user.avatar_url} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  : (user.name?.[0]?.toUpperCase() || '?')
+                }
+                {/* Hover overlay */}
+                <div
+                  className="avatar-edit-overlay"
+                  style={{
+                    position: 'absolute', inset: 0,
+                    background: 'rgba(0,0,0,0.5)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '20px',
+                    opacity: uploadingAvatar ? 1 : 0,
+                    transition: 'opacity 0.15s',
+                  }}
+                >
+                  {uploadingAvatar ? '⏳' : '📷'}
+                </div>
+              </div>
             </div>
 
             {/* Info */}
@@ -146,6 +196,27 @@ export default function Profile({ user }) {
               >
                 {user.rank_title}
               </p>
+
+              {/* Graduation date */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
+                <span style={{ fontSize: '12px', color: '#6B7280', fontFamily: "'DM Sans', sans-serif" }}>🎓 Graduation:</span>
+                <input
+                  type="date"
+                  defaultValue={user.graduation_date || '2026-05-10'}
+                  onChange={handleGraduationDateChange}
+                  style={{
+                    background: 'rgba(255,255,255,0.04)',
+                    border: '1px solid rgba(201,168,76,0.3)',
+                    borderRadius: '6px',
+                    padding: '3px 8px',
+                    color: '#C9A84C',
+                    fontSize: '12px',
+                    fontFamily: "'DM Sans', sans-serif",
+                    outline: 'none',
+                    cursor: 'pointer',
+                  }}
+                />
+              </div>
 
               {/* Stats row */}
               <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
@@ -223,91 +294,94 @@ export default function Profile({ user }) {
             No memories yet. Explore the map and pin your first!
           </p>
         ) : (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-              gap: '16px',
-            }}
-          >
+          <div style={{ columns: 2, columnGap: '20px' }}>
             {memories.map(m => {
               const landmark = LANDMARKS[m.landmark_id]
               const yearBorderColor = {
                 freshman: '#4ADE80', sophomore: '#FACC15', junior: '#FB923C', senior: '#003087'
               }[m.year_tag] || '#C9A84C'
+              // Deterministic rotation: ±3deg based on id
+              const rot = (m.id.charCodeAt(0) % 7) - 3
 
               return (
                 <div
                   key={m.id}
-                  className="holographic-hover"
                   onClick={() => setSelectedMemory(m)}
                   style={{
-                    background: '#111827',
-                    border: `1px solid ${yearBorderColor}40`,
-                    borderLeft: `3px solid ${yearBorderColor}`,
-                    borderRadius: '8px',
-                    padding: '14px',
-                    transition: 'transform 0.15s, box-shadow 0.15s',
+                    breakInside: 'avoid',
+                    display: 'inline-block',
+                    width: '100%',
+                    marginBottom: '20px',
+                    transform: `rotate(${rot}deg)`,
+                    transformOrigin: 'center top',
+                    transition: 'transform 0.2s, box-shadow 0.2s',
                     cursor: 'pointer',
+                    position: 'relative',
                   }}
                   onMouseEnter={e => {
-                    e.currentTarget.style.transform = 'translateY(-2px)'
-                    e.currentTarget.style.boxShadow = `0 8px 24px rgba(0,0,0,0.3)`
+                    e.currentTarget.style.transform = `rotate(0deg) scale(1.03)`
+                    e.currentTarget.style.zIndex = '10'
+                    e.currentTarget.style.boxShadow = `0 16px 40px rgba(0,0,0,0.5), 0 0 0 1px ${yearBorderColor}60`
                   }}
                   onMouseLeave={e => {
-                    e.currentTarget.style.transform = 'translateY(0)'
+                    e.currentTarget.style.transform = `rotate(${rot}deg) scale(1)`
+                    e.currentTarget.style.zIndex = '1'
                     e.currentTarget.style.boxShadow = 'none'
                   }}
                 >
-                  {m.photo_url && (
-                    <img
-                      src={`${apiBase}${m.photo_url}`}
-                      alt="Memory"
-                      style={{
-                        width: '100%',
-                        height: '120px',
-                        objectFit: 'cover',
-                        borderRadius: '4px',
-                        marginBottom: '10px',
-                      }}
-                    />
-                  )}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                    <span
-                      className="font-map"
-                      style={{ fontSize: '11px', color: '#9CA3AF' }}
-                    >
-                      {landmark?.fictionalName || m.landmark_id}
-                    </span>
-                    <YearBadge year={m.year_tag} />
+                  {/* Tape strip */}
+                  <div style={{
+                    position: 'absolute',
+                    top: '-10px',
+                    left: '50%',
+                    transform: 'translateX(-50%) rotate(-1deg)',
+                    width: '48px',
+                    height: '20px',
+                    background: 'rgba(201,168,76,0.25)',
+                    borderRadius: '2px',
+                    zIndex: 2,
+                    backdropFilter: 'blur(2px)',
+                  }} />
+
+                  <div style={{
+                    background: m.photo_url ? 'transparent' : `rgba(245,230,200,0.04)`,
+                    border: `1px solid ${yearBorderColor}50`,
+                    borderTop: `3px solid ${yearBorderColor}`,
+                    borderRadius: '8px',
+                    overflow: 'hidden',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+                  }}>
+                    {m.photo_url && (
+                      <img
+                        src={`${apiBase}${m.photo_url}`}
+                        alt="Memory"
+                        style={{ width: '100%', height: '140px', objectFit: 'cover', display: 'block' }}
+                      />
+                    )}
+                    <div style={{ padding: '12px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
+                        <span className="font-map" style={{ fontSize: '10px', color: '#9CA3AF' }}>
+                          {landmark?.fictionalName || m.landmark_id}
+                        </span>
+                        <YearBadge year={m.year_tag} />
+                      </div>
+                      {m.memory_text && (
+                        <p style={{
+                          fontSize: '13px', color: '#D1D5DB',
+                          fontFamily: "'DM Sans', sans-serif", lineHeight: '1.5',
+                          overflow: 'hidden', display: '-webkit-box',
+                          WebkitLineClamp: 3, WebkitBoxOrient: 'vertical',
+                        }}>
+                          {m.memory_text}
+                        </p>
+                      )}
+                      <p style={{ fontSize: '10px', color: '#4B5563', marginTop: '8px', fontFamily: "'DM Sans', sans-serif" }}>
+                        {new Date(m.created_at).toLocaleDateString()}
+                        {m.reactions?.length > 0 && ` · ${m.reactions.length} ✦`}
+                        {m.song_url && ' · 🎵'}
+                      </p>
+                    </div>
                   </div>
-                  {m.memory_text && (
-                    <p
-                      style={{
-                        fontSize: '13px',
-                        color: '#D1D5DB',
-                        fontFamily: "'DM Sans', sans-serif",
-                        lineHeight: '1.5',
-                        overflow: 'hidden',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 3,
-                        WebkitBoxOrient: 'vertical',
-                      }}
-                    >
-                      {m.memory_text}
-                    </p>
-                  )}
-                  <p
-                    style={{
-                      fontSize: '10px',
-                      color: '#4B5563',
-                      marginTop: '8px',
-                      fontFamily: "'DM Sans', sans-serif",
-                    }}
-                  >
-                    {new Date(m.created_at).toLocaleDateString()}
-                    {m.reactions?.length > 0 && ` · ${m.reactions.length} reactions`}
-                  </p>
                 </div>
               )
             })}

@@ -1,10 +1,16 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import Leaderboard from '../game/Leaderboard'
+
+function useCountdown(dateStr) {
+  const target = new Date(dateStr || '2026-05-10')
+  const now = new Date()
+  const days = Math.ceil((target - now) / (1000 * 60 * 60 * 24))
+  return days
+}
 
 export default function NavBar({ user, onLogout }) {
-  const [leaderboardOpen, setLeaderboardOpen] = useState(false)
   const navigate = useNavigate()
+  const daysLeft = useCountdown(user?.graduation_date)
 
   return (
     <>
@@ -32,27 +38,37 @@ export default function NavBar({ user, onLogout }) {
 
         <div style={{ flex: 1 }} />
 
+        {user && (
+          <div style={{
+            fontSize: '12px', fontFamily: "'DM Sans', sans-serif",
+            color: daysLeft > 0 ? '#C9A84C' : '#4ADE80',
+            background: daysLeft > 0 ? 'rgba(201,168,76,0.1)' : 'rgba(74,222,128,0.1)',
+            border: `1px solid ${daysLeft > 0 ? 'rgba(201,168,76,0.3)' : 'rgba(74,222,128,0.3)'}`,
+            borderRadius: '999px', padding: '3px 10px',
+            whiteSpace: 'nowrap',
+          }}>
+            {daysLeft > 0 ? `🎓 ${daysLeft} days` : '🎓 Congratulations, Grad!'}
+          </div>
+        )}
+
         {user ? (
           <>
-            <button
-              onClick={() => setLeaderboardOpen(true)}
-              style={{
-                background: 'transparent',
-                border: '1px solid rgba(201,168,76,0.4)',
-                color: '#C9A84C',
-                borderRadius: '6px',
-                padding: '5px 12px',
-                cursor: 'pointer',
-                fontSize: '13px',
-                fontFamily: "'DM Sans', sans-serif",
-                transition: 'all 0.15s',
-              }}
-              onMouseEnter={e => e.target.style.background = 'rgba(201,168,76,0.1)'}
-              onMouseLeave={e => e.target.style.background = 'transparent'}
-            >
-              🏆 Legends
-            </button>
-
+            <Link to="/soundtrack" style={{ textDecoration: 'none' }}>
+              <button
+                style={{
+                  background: 'transparent',
+                  border: '1px solid rgba(201,168,76,0.4)',
+                  color: '#C9A84C',
+                  borderRadius: '6px',
+                  padding: '5px 12px',
+                  cursor: 'pointer',
+                  fontSize: '13px',
+                  fontFamily: "'DM Sans', sans-serif",
+                }}
+              >
+                🎵 Soundtrack
+              </button>
+            </Link>
             <Link to="/profile" style={{ textDecoration: 'none' }}>
               <div
                 style={{
@@ -81,9 +97,14 @@ export default function NavBar({ user, onLogout }) {
                     fontSize: '11px',
                     color: '#0A0E1A',
                     fontWeight: 700,
+                    overflow: 'hidden',
+                    flexShrink: 0,
                   }}
                 >
-                  {user.name?.[0]?.toUpperCase() || '?'}
+                  {user.avatar_url
+                    ? <img src={user.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    : user.name?.[0]?.toUpperCase() || '?'
+                  }
                 </div>
                 <span style={{ fontSize: '13px', color: '#D1D5DB', fontFamily: "'DM Sans', sans-serif" }}>
                   {user.name}
@@ -134,7 +155,6 @@ export default function NavBar({ user, onLogout }) {
         )}
       </nav>
 
-      <Leaderboard isOpen={leaderboardOpen} onClose={() => setLeaderboardOpen(false)} />
     </>
   )
 }

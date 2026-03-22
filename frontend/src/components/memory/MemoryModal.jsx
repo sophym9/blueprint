@@ -1,7 +1,9 @@
 import { useState, useRef } from 'react'
+import html2canvas from 'html2canvas'
 import YearBadge from './YearBadge'
 import ReactionBar from './ReactionBar'
 import AudioRecorder from './AudioRecorder'
+import ShareCard from './ShareCard'
 import { LANDMARKS } from '../../lib/landmarks'
 import api from '../../lib/api'
 import { compressImage } from '../../lib/compressImage'
@@ -32,8 +34,18 @@ export default function MemoryModal({ memory, user, onClose, onAddReaction, onRe
   const [editYear, setEditYear] = useState(memory.year_tag || 'senior')
   const [editPhotoUrl, setEditPhotoUrl] = useState(memory.photo_url || null)
   const [editAudioUrl, setEditAudioUrl] = useState(memory.audio_url || null)
+  const [editSongUrl, setEditSongUrl] = useState(memory.song_url || '')
+  const [editSongUrlError, setEditSongUrlError] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [sharing, setSharing] = useState(false)
   const fileInputRef = useRef(null)
+  const shareCardRef = useRef(null)
+
+  function extractYouTubeId(url) {
+    if (!url) return null
+    const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?/]+)/)
+    return m ? m[1] : null
+  }
 
   const borderColor = YEAR_BORDER_COLORS[editing ? editYear : memory.year_tag] || '#C9A84C'
   const landmark = LANDMARKS[memory.landmark_id]
@@ -60,12 +72,19 @@ export default function MemoryModal({ memory, user, onClose, onAddReaction, onRe
 
   async function handleSave() {
     setSaving(true)
+    const cleanSong = editSongUrl.trim()
+    if (cleanSong && !cleanSong.includes('youtube.com') && !cleanSong.includes('youtu.be')) {
+      setEditSongUrlError(true)
+      setSaving(false)
+      return
+    }
     try {
       await onUpdate({
         memory_text: editText || null,
         year_tag: editYear,
         photo_url: editPhotoUrl || null,
         audio_url: editAudioUrl || null,
+        song_url: cleanSong || null,
       })
       setEditing(false)
     } finally {
@@ -82,12 +101,28 @@ export default function MemoryModal({ memory, user, onClose, onAddReaction, onRe
     }
   }
 
+  async function handleShare() {
+    if (!shareCardRef.current) return
+    setSharing(true)
+    try {
+      const canvas = await html2canvas(shareCardRef.current, { useCORS: true, backgroundColor: null, scale: 2 })
+      const a = document.createElement('a')
+      a.href = canvas.toDataURL('image/png')
+      a.download = 'memory.png'
+      a.click()
+    } finally {
+      setSharing(false)
+    }
+  }
+
   function handleCancelEdit() {
     setEditing(false)
     setEditText(memory.memory_text || '')
     setEditYear(memory.year_tag || 'senior')
     setEditPhotoUrl(memory.photo_url || null)
     setEditAudioUrl(memory.audio_url || null)
+    setEditSongUrl(memory.song_url || '')
+    setEditSongUrlError(false)
   }
 
   return (
@@ -135,6 +170,11 @@ export default function MemoryModal({ memory, user, onClose, onAddReaction, onRe
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               {!editing && <YearBadge year={memory.year_tag} />}
+              {!editing && (
+                <button onClick={handleShare} disabled={sharing} style={{ background: 'none', border: '1px solid rgba(99,102,241,0.4)', color: '#818CF8', borderRadius: '5px', padding: '3px 8px', cursor: sharing ? 'wait' : 'pointer', fontSize: '12px', fontFamily: "'DM Sans', sans-serif" }}>
+                  {sharing ? '...' : '↓ Share'}
+                </button>
+              )}
               {isOwner && !editing && (
                 <>
                   <button onClick={() => setEditing(true)} style={{ background: 'none', border: '1px solid rgba(201,168,76,0.4)', color: '#C9A84C', borderRadius: '5px', padding: '3px 8px', cursor: 'pointer', fontSize: '12px', fontFamily: "'DM Sans', sans-serif" }}>Edit</button>
@@ -212,6 +252,19 @@ export default function MemoryModal({ memory, user, onClose, onAddReaction, onRe
                 onClear={() => setEditAudioUrl(null)}
               />
 
+              {/* Song URL */}
+              <div>
+                <label style={{ fontSize: '12px', color: '#9CA3AF', fontFamily: "'DM Sans', sans-serif", display: 'block', marginBottom: '6px' }}>🎵 Song (YouTube URL)</label>
+                <input
+                  type="text"
+                  value={editSongUrl}
+                  onChange={e => { setEditSongUrl(e.target.value); setEditSongUrlError(false) }}
+                  placeholder="https://youtube.com/watch?v=..."
+                  style={{ width: '100%', boxSizing: 'border-box', background: 'rgba(255,255,255,0.04)', border: `1px solid ${editSongUrlError ? '#EF4444' : 'rgba(255,255,255,0.1)'}`, borderRadius: '6px', padding: '7px 10px', color: '#E5E7EB', fontSize: '12px', fontFamily: "'DM Sans', sans-serif", outline: 'none' }}
+                />
+                {editSongUrlError && <p style={{ fontSize: '11px', color: '#FCA5A5', margin: '3px 0 0', fontFamily: "'DM Sans', sans-serif" }}>Must be a YouTube link</p>}
+              </div>
+
               <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
                 <button onClick={handleCancelEdit} style={{ background: 'none', border: '1px solid #374151', color: '#6B7280', borderRadius: '6px', padding: '8px 20px', cursor: 'pointer', fontSize: '14px', fontFamily: "'DM Sans', sans-serif" }}>Cancel</button>
                 <button onClick={handleSave} disabled={saving} className="font-display" style={{ background: saving ? '#4B5563' : 'linear-gradient(135deg, #C9A84C, #E8C56A)', border: 'none', color: '#0A0E1A', borderRadius: '6px', padding: '8px 24px', cursor: saving ? 'wait' : 'pointer', fontSize: '15px', letterSpacing: '0.08em', boxShadow: '0 0 12px rgba(201,168,76,0.3)' }}>{saving ? 'SAVING...' : 'SAVE'}</button>
@@ -235,12 +288,28 @@ export default function MemoryModal({ memory, user, onClose, onAddReaction, onRe
                   <audio src={`${apiBase}${memory.audio_url}`} controls style={{ width: '100%', height: '36px' }} />
                 </div>
               )}
+              {memory.song_url && extractYouTubeId(memory.song_url) && (
+                <div style={{ marginBottom: '14px' }}>
+                  <p style={{ fontSize: '11px', color: '#9CA3AF', marginBottom: '6px', fontFamily: "'DM Sans', sans-serif" }}>🎵 Song</p>
+                  <div style={{ position: 'relative', paddingTop: '56.25%', borderRadius: '8px', overflow: 'hidden', background: '#000' }}>
+                    <iframe
+                      src={`https://www.youtube-nocookie.com/embed/${extractYouTubeId(memory.song_url)}`}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none' }}
+                    />
+                  </div>
+                </div>
+              )}
               <div style={{ height: '1px', background: 'rgba(255,255,255,0.07)', marginBottom: '14px' }} />
               <ReactionBar memory={memory} user={user} onAddReaction={onAddReaction} onRemoveReaction={onRemoveReaction} />
             </>
           )}
         </div>
       </div>
+
+      {/* Off-screen share card for html2canvas */}
+      <ShareCard ref={shareCardRef} memory={memory} apiBase={apiBase} />
 
       {/* Photo lightbox */}
       {photoExpanded && (

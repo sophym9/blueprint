@@ -113,3 +113,8 @@ body {
   background-size: 200% 200%;
   animation: shimmer 1.5s linear infinite;
 }
+
+/* Avatar upload hover */
+div:has(> .avatar-edit-overlay):hover .avatar-edit-overlay {
+  opacity: 1 !important;
+}

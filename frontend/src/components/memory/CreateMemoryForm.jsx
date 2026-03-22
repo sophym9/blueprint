@@ -23,6 +23,8 @@ export default function CreateMemoryForm({
   const [photoUrl, setPhotoUrl] = useState(null)
   const [audioUrl, setAudioUrl] = useState(null)
   const [isPublic, setIsPublic] = useState(initialIsPublic)
+  const [songUrl, setSongUrl] = useState('')
+  const [songUrlError, setSongUrlError] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
@@ -48,11 +50,18 @@ export default function CreateMemoryForm({
     if (!memoryText && !photoUrl && !audioUrl) return
     setSubmitting(true)
     try {
+      const cleanSong = songUrl.trim()
+      if (cleanSong && !cleanSong.includes('youtube.com') && !cleanSong.includes('youtu.be')) {
+        setSongUrlError(true)
+        setSubmitting(false)
+        return
+      }
       await onSubmit({
         memory_text: memoryText || null,
         year_tag: yearTag,
         photo_url: photoUrl || null,
         audio_url: audioUrl || null,
+        song_url: cleanSong || null,
         is_public: isPublic,
       })
     } finally {
@@ -251,6 +260,30 @@ export default function CreateMemoryForm({
 
             {/* Audio recorder */}
             {!requireLogin ? <AudioRecorder onAudioUrl={url => setAudioUrl(url)} /> : null}
+
+            {/* YouTube song */}
+            {!requireLogin && (
+              <div>
+                <label style={{ fontSize: '11px', color: '#6B7280', fontFamily: "'DM Sans', sans-serif", display: 'block', marginBottom: '4px' }}>
+                  🎵 Song (YouTube URL)
+                </label>
+                <input
+                  type="text"
+                  value={songUrl}
+                  onChange={e => { setSongUrl(e.target.value); setSongUrlError(false) }}
+                  placeholder="https://youtube.com/watch?v=..."
+                  style={{
+                    width: '100%', boxSizing: 'border-box',
+                    background: 'rgba(255,255,255,0.04)',
+                    border: `1px solid ${songUrlError ? '#EF4444' : 'rgba(255,255,255,0.1)'}`,
+                    borderRadius: '6px', padding: '7px 10px',
+                    color: '#E5E7EB', fontSize: '12px',
+                    fontFamily: "'DM Sans', sans-serif", outline: 'none',
+                  }}
+                />
+                {songUrlError && <p style={{ fontSize: '11px', color: '#FCA5A5', margin: '3px 0 0', fontFamily: "'DM Sans', sans-serif" }}>Must be a YouTube link</p>}
+              </div>
+            )}
 
             {errorMessage ? (
               <p style={{ margin: 0, color: '#FCA5A5', fontSize: '12px', fontFamily: "'DM Sans', sans-serif" }}>

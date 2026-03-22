@@ -15,6 +15,7 @@ router = APIRouter(prefix="/memories", tags=["memories"])
 def _serialize(memory: Memory) -> dict:
     data = {c.name: getattr(memory, c.name) for c in memory.__table__.columns}
     data["author_name"] = memory.user.name if memory.user else "Unknown"
+    data["author_avatar_url"] = memory.user.avatar_url if memory.user else None
     data["reactions"] = [
         {"id": r.id, "memory_id": r.memory_id, "user_id": r.user_id, "emoji": r.emoji}
         for r in memory.reactions

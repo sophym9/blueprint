@@ -13,6 +13,7 @@ class User(Base):
     password_hash = Column(String, nullable=True)
     name = Column(String, nullable=False)
     graduation_year = Column(Integer, nullable=True)
+    graduation_date = Column(String, nullable=True)
     avatar_url = Column(String, nullable=True)
     memory_points = Column(Integer, default=0)
     zones_unlocked = Column(JSON, default=list)

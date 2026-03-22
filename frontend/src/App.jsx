@@ -6,9 +6,10 @@ import LoadingScreen from './components/ui/LoadingScreen'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Profile from './pages/Profile'
+import Soundtrack from './pages/Soundtrack'
 
 export default function App() {
-  const { user, loading, login, register, logout, refreshUser } = useAuth()
+  const { user, setUser, loading, login, register, logout, refreshUser, auth0Login } = useAuth()
   const [showLoader, setShowLoader] = useState(true)
 
   useEffect(() => {
@@ -23,7 +24,6 @@ export default function App() {
       {user && <NavBar user={user} onLogout={logout} />}
       <div style={{ height: '100%', position: 'relative' }}>
         <Routes>
-          {/* Landing: redirect to map if logged in, otherwise login */}
           <Route
             path="/"
             element={
@@ -37,14 +37,22 @@ export default function App() {
             element={
               user
                 ? <Navigate to="/" replace />
-                : <Login onLogin={login} onRegister={register} />
+                : <Login onLogin={login} onRegister={register} onAuth0Login={auth0Login} />
             }
           />
           <Route
             path="/profile"
             element={
               user
-                ? <Profile user={user} />
+                ? <Profile user={user} onUserUpdate={u => setUser && setUser(u)} />
+                : <Navigate to="/login" replace />
+            }
+          />
+          <Route
+            path="/soundtrack"
+            element={
+              user
+                ? <Soundtrack user={user} />
                 : <Navigate to="/login" replace />
             }
           />

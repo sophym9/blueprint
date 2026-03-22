@@ -8,6 +8,7 @@ class MemoryUpdate(BaseModel):
     memory_text: Optional[str] = None
     photo_url: Optional[str] = None
     audio_url: Optional[str] = None
+    song_url: Optional[str] = None
     year_tag: Optional[str] = None
 
 
@@ -19,6 +20,7 @@ class MemoryCreate(BaseModel):
     memory_text: Optional[str] = None
     photo_url: Optional[str] = None
     audio_url: Optional[str] = None
+    song_url: Optional[str] = None
     year_tag: Optional[str] = None
     is_public: bool = True
 
@@ -27,6 +29,7 @@ class MemoryResponse(BaseModel):
     id: str
     user_id: str
     author_name: str
+    author_avatar_url: Optional[str] = None
     landmark_id: str
     region: str
     pin_x: float
@@ -34,6 +37,7 @@ class MemoryResponse(BaseModel):
     memory_text: Optional[str]
     photo_url: Optional[str]
     audio_url: Optional[str]
+    song_url: Optional[str] = None
     year_tag: Optional[str]
     is_public: bool
     created_at: datetime
