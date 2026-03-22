@@ -1,18 +1,14 @@
 import { useState } from 'react'
 import { MAP_W, MAP_H } from '../../lib/mapConfig'
 import { LANDMARKS } from '../../lib/landmarks'
-import MapPin from './MapPin'
 
-function heatColor(count) {
-  if (count === 0) return '#4A90E2'
-  if (count < 3)   return '#FACC15'
-  if (count < 7)   return '#FB923C'
-  return '#EF4444'
+const YEAR_HEAT_COLORS = {
+  freshman: '#4ADE80',
+  sophomore: '#FACC15',
+  junior: '#FB923C',
+  senior: '#003087',
 }
-
-function heatRadius(count) {
-  return 36 + Math.sqrt(count) * 20
-}
+const DEFAULT_HEAT_COLOR = '#C9A84C'
 
 export default function WorldView({
   onSelectLandmark, onSelectMapPoint, onSelectMemory,
@@ -31,7 +27,6 @@ export default function WorldView({
     <div
       style={{ position: 'relative', width: `${MAP_W}px`, height: `${MAP_H}px`, flexShrink: 0 }}
       onClick={e => {
-        if (e.target.closest('.map-pin')) return
         const rect = e.currentTarget.getBoundingClientRect()
         const x = ((e.clientX - rect.left) / rect.width) * 100
         const y = ((e.clientY - rect.top) / rect.height) * 100
@@ -50,8 +45,8 @@ export default function WorldView({
         viewBox={`0 0 ${MAP_W} ${MAP_H}`}
       >
         <defs>
-          <filter id="heat-blur" x="-80%" y="-80%" width="260%" height="260%">
-            <feGaussianBlur stdDeviation="18" />
+          <filter id="mem-heat-blur" x="-120%" y="-120%" width="340%" height="340%">
+            <feGaussianBlur stdDeviation="22" />
           </filter>
           <filter id="pin-glow" x="-60%" y="-60%" width="220%" height="220%">
             <feGaussianBlur stdDeviation="4" result="blur" />
@@ -59,25 +54,40 @@ export default function WorldView({
           </filter>
         </defs>
 
-        {/* Layer 1: blurred heat blobs */}
-        {landmarks.map(({ id, cx, cy, count }) => (
-          count > 0 && (
-            <circle
-              key={`heat-${id}`}
-              cx={cx} cy={cy}
-              r={heatRadius(count)}
-              fill={heatColor(count)}
-              opacity={0.35 + Math.min(count, 10) * 0.03}
-              filter="url(#heat-blur)"
-              style={{ pointerEvents: 'none' }}
-            />
+        {/* Layer 1a: blurred heat blobs for density (non-interactive) */}
+        {memories.map(memory => {
+          const color = YEAR_HEAT_COLORS[memory.year_tag] || DEFAULT_HEAT_COLOR
+          const cx = (memory.pin_x / 100) * MAP_W
+          const cy = (memory.pin_y / 100) * MAP_H
+          return (
+            <circle key={`blur-${memory.id}`} cx={cx} cy={cy} r={42}
+              fill={color} opacity={0.3} filter="url(#mem-heat-blur)"
+              style={{ pointerEvents: 'none' }} />
           )
-        ))}
+        })}
 
-        {/* Layer 2: clickable pins */}
+        {/* Layer 1b: clickable memory dots */}
+        {memories.map(memory => {
+          const color = YEAR_HEAT_COLORS[memory.year_tag] || DEFAULT_HEAT_COLOR
+          const cx = (memory.pin_x / 100) * MAP_W
+          const cy = (memory.pin_y / 100) * MAP_H
+          return (
+            <g key={`dot-${memory.id}`}
+              style={{ cursor: 'pointer' }}
+              onClick={e => { e.stopPropagation(); onSelectMemory?.(memory) }}
+              onPointerDown={e => e.stopPropagation()}
+            >
+              <circle cx={cx} cy={cy} r={12} fill={color} opacity={0} />
+              <circle cx={cx} cy={cy} r={8} fill={color} opacity={0.15} />
+              <circle cx={cx} cy={cy} r={4} fill={color} opacity={0.7} />
+            </g>
+          )
+        })}
+
+        {/* Layer 2: clickable landmark pins */}
         {landmarks.map(({ id, cx, cy, count, fictionalName, realName }) => {
           const isHovered = hovered === id
-          const color = count > 0 ? heatColor(count) : '#6B7280'
+          const color = count > 0 ? '#C9A84C' : '#6B7280'
 
           return (
             <g
@@ -88,7 +98,6 @@ export default function WorldView({
               onMouseEnter={() => setHovered(id)}
               onMouseLeave={() => setHovered(null)}
             >
-              {/* Outer pulse ring */}
               <circle
                 cx={cx} cy={cy}
                 r={isHovered ? 22 : 14}
@@ -100,7 +109,6 @@ export default function WorldView({
                 filter={count > 0 ? 'url(#pin-glow)' : undefined}
                 style={{ transition: 'all 0.2s ease' }}
               />
-              {/* Inner dot */}
               <circle
                 cx={cx} cy={cy}
                 r={isHovered ? 7 : 5}
@@ -108,23 +116,7 @@ export default function WorldView({
                 opacity={isHovered ? 1 : 0.85}
                 style={{ transition: 'all 0.2s ease' }}
               />
-              {/* Count badge */}
-              {count > 0 && (
-                <text
-                  x={cx} y={cy - 18}
-                  textAnchor="middle"
-                  fontSize="10"
-                  fontWeight="700"
-                  fontFamily="'DM Sans', sans-serif"
-                  fill={color}
-                  opacity={isHovered ? 1 : 0.7}
-                  style={{ pointerEvents: 'none', transition: 'opacity 0.2s' }}
-                >
-                  {count}
-                </text>
-              )}
 
-              {/* Tooltip on hover */}
               {isHovered && (
                 <foreignObject
                   x={cx + 14}
@@ -156,16 +148,6 @@ export default function WorldView({
           )
         })}
       </svg>
-
-      {/* Memory pins */}
-      {memories.map(memory => (
-        <div key={memory.id} className="map-pin">
-          <MapPin
-            memory={memory}
-            onClick={e => { e.stopPropagation(); onSelectMemory?.(memory) }}
-          />
-        </div>
-      ))}
 
       {/* Pending pin crosshair */}
       {pendingPin && (

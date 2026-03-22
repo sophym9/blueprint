@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { LANDMARKS } from '../../lib/landmarks'
 import { useMemories } from '../../hooks/useMemories'
@@ -27,7 +27,7 @@ export default function LandmarkView({
   const containerRef = useRef(null)
 
   useEffect(() => {
-    fetchMemories({ landmarkId })
+    fetchMemories()
   }, [landmarkId])
 
   useEffect(() => {
@@ -62,6 +62,17 @@ export default function LandmarkView({
     setPendingPin({ pin_x, pin_y })
     setShowForm(true)
   }
+
+  const visibleMemories = useMemo(() => {
+    if (!landmark) return []
+    const fx = focusPoint?.x ?? landmark.mapX
+    const fy = focusPoint?.y ?? landmark.mapY
+    const half = 50 / ZOOM_SCALE + 5
+    return memories.filter(m =>
+      m.pin_x >= fx - half && m.pin_x <= fx + half &&
+      m.pin_y >= fy - half && m.pin_y <= fy + half
+    )
+  }, [memories, landmark, focusPoint])
 
   async function handleCreateMemory(formData) {
     try {
@@ -152,8 +163,8 @@ export default function LandmarkView({
         </div>
       </div>
 
-      {/* Memory pins */}
-      {memories.map(memory => (
+      {/* Memory pins — only those within the visible viewport */}
+      {visibleMemories.map(memory => (
         <div key={memory.id} className="map-pin">
           <MapPin
             memory={{ ...memory, ...projectMapPointToScreen(memory) }}
@@ -184,7 +195,7 @@ export default function LandmarkView({
       {selectedMemory && (
         <div className="memory-modal">
           <MemoryModal
-            memory={memories.find(m => m.id === selectedMemory.id) || selectedMemory}
+            memory={visibleMemories.find(m => m.id === selectedMemory.id) || selectedMemory}
             user={user}
             onClose={() => setSelectedMemory(null)}
             onAddReaction={addReaction}
