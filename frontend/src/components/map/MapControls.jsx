@@ -35,32 +35,12 @@ export default function MapControls({ zoomLevel, activeRegion, activeLandmark, o
             ← Back
           </button>
         )}
-        <button
-          onClick={onZoomIn}
-          title="Zoom in"
-          style={{
-            background: 'rgba(10,14,26,0.9)',
-            border: '1px solid rgba(201,168,76,0.4)',
-            color: '#C9A84C',
-            borderRadius: '6px',
-            padding: '6px 10px',
-            cursor: 'pointer',
-            fontSize: '16px',
-          }}
-        >+</button>
-        <button
-          onClick={onZoomOut}
-          title="Zoom out"
-          style={{
-            background: 'rgba(10,14,26,0.9)',
-            border: '1px solid rgba(201,168,76,0.4)',
-            color: '#C9A84C',
-            borderRadius: '6px',
-            padding: '6px 10px',
-            cursor: 'pointer',
-            fontSize: '16px',
-          }}
-        >−</button>
+        {onZoomIn && (
+          <button onClick={onZoomIn} title="Zoom in" style={{ background: 'rgba(10,14,26,0.9)', border: '1px solid rgba(201,168,76,0.4)', color: '#C9A84C', borderRadius: '6px', padding: '6px 10px', cursor: 'pointer', fontSize: '16px' }}>+</button>
+        )}
+        {onZoomOut && (
+          <button onClick={onZoomOut} title="Zoom out" style={{ background: 'rgba(10,14,26,0.9)', border: '1px solid rgba(201,168,76,0.4)', color: '#C9A84C', borderRadius: '6px', padding: '6px 10px', cursor: 'pointer', fontSize: '16px' }}>−</button>
+        )}
       </div>
     </div>
   )

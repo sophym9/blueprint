@@ -1,6 +1,6 @@
 export const ZOOM_LEVELS = { WORLD: 0, REGION: 1, LANDMARK: 2 }
 
-// Map image: 2764×1536, displayed at 1400×778 in WorldView/RegionView
+// Map image: 1381×768, displayed at 1400×778 in WorldView/RegionView
 export const MAP_W = 1400
 export const MAP_H = 778
 

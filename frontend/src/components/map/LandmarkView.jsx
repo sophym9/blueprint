@@ -19,7 +19,7 @@ export default function LandmarkView({
 }) {
   const landmark = LANDMARKS[landmarkId]
   const navigate = useNavigate()
-  const { memories, loading, fetchMemories, createMemory, addReaction, removeReaction } = useMemories()
+  const { memories, loading, fetchMemories, createMemory, updateMemory, deleteMemory, addReaction, removeReaction } = useMemories()
   const [selectedMemory, setSelectedMemory] = useState(null)
   const [pendingPin, setPendingPin] = useState(null) // { pin_x, pin_y }
   const [submitError, setSubmitError] = useState(null)
@@ -180,11 +180,19 @@ export default function LandmarkView({
       {selectedMemory && (
         <div className="memory-modal">
           <MemoryModal
-            memory={selectedMemory}
+            memory={memories.find(m => m.id === selectedMemory.id) || selectedMemory}
             user={user}
             onClose={() => setSelectedMemory(null)}
             onAddReaction={addReaction}
             onRemoveReaction={removeReaction}
+            onUpdate={async (data) => {
+              const updated = await updateMemory(selectedMemory.id, data)
+              setSelectedMemory(updated)
+            }}
+            onDelete={async () => {
+              await deleteMemory(selectedMemory.id)
+              setSelectedMemory(null)
+            }}
           />
         </div>
       )}

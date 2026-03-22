@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import api from '../../lib/api'
+import { compressImage } from '../../lib/compressImage'
 import AudioRecorder from './AudioRecorder'
 
 const YEAR_OPTIONS = [
@@ -32,11 +33,10 @@ export default function CreateMemoryForm({
     if (!file) return
     setUploading(true)
     try {
+      const compressed = await compressImage(file)
       const formData = new FormData()
-      formData.append('file', file)
-      const res = await api.post('/upload/photo', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      })
+      formData.append('file', compressed)
+      const res = await api.post('/upload/photo', formData)
       setPhotoUrl(res.data.url)
     } finally {
       setUploading(false)

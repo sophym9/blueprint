@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { ZOOM_LEVELS } from '../../lib/mapConfig'
+import { ZOOM_LEVELS, MAP_W, MAP_H } from '../../lib/mapConfig'
 import { useMapTransform } from '../../hooks/useMapTransform'
 import WorldView from './WorldView'
 import LandmarkView from './LandmarkView'
@@ -10,7 +10,12 @@ export default function DukeWorldMap({ user, onPointsEarned, memoryCounts = {} }
   const [activeLandmark, setActiveLandmark] = useState(null)
   const [composerSeedPoint, setComposerSeedPoint] = useState(null)
   const [focusPoint, setFocusPoint] = useState(null)
-  const { cssTransform, isDragging, handlers, makeWheelHandler, zoomTo, transform } = useMapTransform({ initialScale: 0.85 })
+  const { cssTransform, isDragging, handlers, makeWheelHandler, zoomTo, transform } = useMapTransform({
+    initialScale: 1,
+    maxScale: 4,
+    mapW: MAP_W,
+    mapH: MAP_H,
+  })
   const wrapperRef = useRef(null)
 
   // Attach non-passive wheel listener so we can preventDefault
@@ -64,8 +69,8 @@ export default function DukeWorldMap({ user, onPointsEarned, memoryCounts = {} }
         zoomLevel={zoomLevel}
         activeLandmark={activeLandmark}
         onBack={handleBack}
-        onZoomIn={() => zoomTo(Math.min(transform.scale + 0.3, 4), transform.x, transform.y)}
-        onZoomOut={() => zoomTo(Math.max(transform.scale - 0.3, 0.4), transform.x, transform.y)}
+        onZoomIn={zoomLevel !== ZOOM_LEVELS.LANDMARK ? () => zoomTo(transform.scale + 0.4, transform.x, transform.y) : null}
+        onZoomOut={zoomLevel !== ZOOM_LEVELS.LANDMARK ? () => zoomTo(transform.scale - 0.4, transform.x, transform.y) : null}
       />
 
       {/* Map content */}

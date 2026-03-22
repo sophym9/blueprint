@@ -25,6 +25,12 @@ export function useMemories() {
     return res.data
   }
 
+  async function updateMemory(id, data) {
+    const res = await api.patch(`/memories/${id}`, data)
+    setMemories(prev => prev.map(m => m.id === id ? { ...m, ...res.data } : m))
+    return res.data
+  }
+
   async function deleteMemory(id) {
     await api.delete(`/memories/${id}`)
     setMemories(prev => prev.filter(m => m.id !== id))
@@ -49,5 +55,5 @@ export function useMemories() {
     ))
   }
 
-  return { memories, loading, fetchMemories, createMemory, deleteMemory, addReaction, removeReaction }
+  return { memories, loading, fetchMemories, createMemory, updateMemory, deleteMemory, addReaction, removeReaction }
 }

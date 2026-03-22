@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../lib/api'
 import YearBadge from '../components/memory/YearBadge'
+import MemoryModal from '../components/memory/MemoryModal'
 import { LANDMARKS } from '../lib/landmarks'
 import { REGIONS } from '../lib/mapConfig'
 
@@ -13,7 +14,30 @@ const ZONES = [
 export default function Profile({ user }) {
   const [memories, setMemories] = useState([])
   const [loading, setLoading] = useState(true)
+  const [selectedMemory, setSelectedMemory] = useState(null)
   const navigate = useNavigate()
+
+  async function handleUpdate(data) {
+    const res = await api.patch(`/memories/${selectedMemory.id}`, data)
+    setMemories(prev => prev.map(m => m.id === selectedMemory.id ? { ...m, ...res.data } : m))
+    setSelectedMemory(prev => ({ ...prev, ...res.data }))
+  }
+
+  async function handleDelete() {
+    await api.delete(`/memories/${selectedMemory.id}`)
+    setMemories(prev => prev.filter(m => m.id !== selectedMemory.id))
+    setSelectedMemory(null)
+  }
+
+  async function handleAddReaction(memoryId, emoji) {
+    const res = await api.post('/reactions/', { memory_id: memoryId, emoji })
+    setMemories(prev => prev.map(m => m.id === memoryId ? { ...m, reactions: [...(m.reactions || []), res.data] } : m))
+  }
+
+  async function handleRemoveReaction(reactionId, memoryId) {
+    await api.delete(`/reactions/${reactionId}`)
+    setMemories(prev => prev.map(m => m.id === memoryId ? { ...m, reactions: (m.reactions || []).filter(r => r.id !== reactionId) } : m))
+  }
 
   useEffect(() => {
     if (!user) return
@@ -216,6 +240,7 @@ export default function Profile({ user }) {
                 <div
                   key={m.id}
                   className="holographic-hover"
+                  onClick={() => setSelectedMemory(m)}
                   style={{
                     background: '#111827',
                     border: `1px solid ${yearBorderColor}40`,
@@ -223,6 +248,7 @@ export default function Profile({ user }) {
                     borderRadius: '8px',
                     padding: '14px',
                     transition: 'transform 0.15s, box-shadow 0.15s',
+                    cursor: 'pointer',
                   }}
                   onMouseEnter={e => {
                     e.currentTarget.style.transform = 'translateY(-2px)'
@@ -288,6 +314,18 @@ export default function Profile({ user }) {
           </div>
         )}
       </div>
+
+      {selectedMemory && (
+        <MemoryModal
+          memory={memories.find(m => m.id === selectedMemory.id) || selectedMemory}
+          user={user}
+          onClose={() => setSelectedMemory(null)}
+          onAddReaction={handleAddReaction}
+          onRemoveReaction={handleRemoveReaction}
+          onUpdate={handleUpdate}
+          onDelete={handleDelete}
+        />
+      )}
     </div>
   )
 }
