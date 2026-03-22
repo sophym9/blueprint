@@ -17,6 +17,17 @@ export default function App() {
     return () => clearTimeout(t)
   }, [])
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const code = params.get('code')
+    const verifier = sessionStorage.getItem('pkce_verifier')
+    if (!code || !verifier) return
+    sessionStorage.removeItem('pkce_verifier')
+    window.history.replaceState({}, '', '/')
+    auth0Login({ code, verifier, redirect_uri: window.location.origin })
+      .catch(() => {})
+  }, [])
+
   if (showLoader || loading) return <LoadingScreen />
 
   return (
@@ -37,7 +48,7 @@ export default function App() {
             element={
               user
                 ? <Navigate to="/" replace />
-                : <Login onLogin={login} onRegister={register} onAuth0Login={auth0Login} />
+                : <Login onLogin={login} onRegister={register} />
             }
           />
           <Route

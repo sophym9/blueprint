@@ -1,6 +1,22 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+const AUTH0_DOMAIN = 'dev-oqsb7nkisppimu66.us.auth0.com'
+const AUTH0_CLIENT_ID = 'osIQVsnIbjmaYqsoUlBUzIr3VMwCg6jT'
+const REDIRECT_URI = window.location.origin
+
+function randomString(len) {
+  const arr = new Uint8Array(len)
+  crypto.getRandomValues(arr)
+  return btoa(String.fromCharCode(...arr)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
+}
+
+async function pkceChallenge(verifier) {
+  const data = new TextEncoder().encode(verifier)
+  const digest = await crypto.subtle.digest('SHA-256', data)
+  return btoa(String.fromCharCode(...new Uint8Array(digest))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
+}
+
 const GRAD_YEARS = [2026, 2027, 2028, 2029]
 
 const INPUT_STYLE = {
@@ -105,6 +121,57 @@ export default function Login({ onLogin, onRegister }) {
         }}>
           Duke University · Class of 2026
         </p>
+
+        {/* Google / Auth0 button */}
+        <button
+          type="button"
+          onClick={async () => {
+            const verifier = randomString(64)
+            const challenge = await pkceChallenge(verifier)
+            sessionStorage.setItem('pkce_verifier', verifier)
+            const params = new URLSearchParams({
+              response_type: 'code',
+              client_id: AUTH0_CLIENT_ID,
+              redirect_uri: REDIRECT_URI,
+              scope: 'openid profile email',
+              code_challenge: challenge,
+              code_challenge_method: 'S256',
+            })
+            window.location.href = `https://${AUTH0_DOMAIN}/authorize?${params}`
+          }}
+          style={{
+            width: '100%',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
+            background: '#fff',
+            border: '1px solid rgba(255,255,255,0.15)',
+            borderRadius: '8px',
+            padding: '11px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontFamily: "'DM Sans', sans-serif",
+            fontWeight: 600,
+            color: '#1F2937',
+            marginBottom: '16px',
+            transition: 'opacity 0.15s',
+          }}
+          onMouseEnter={e => e.currentTarget.style.opacity = '0.9'}
+          onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+        >
+          <svg width="18" height="18" viewBox="0 0 48 48">
+            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+          </svg>
+          Continue with Google
+        </button>
+
+        {/* Divider */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+          <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
+          <span style={{ fontSize: '11px', color: '#4B5563', fontFamily: "'DM Sans', sans-serif" }}>or</span>
+          <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
+        </div>
 
         {/* Tab switcher */}
         <div style={{

@@ -48,5 +48,12 @@ export function useAuth() {
     api.get('/auth/me').then(res => setUser(res.data)).catch(() => {})
   }
 
-  return { user, loading, login, register, logout, refreshUser }
+  async function auth0Login({ code, verifier, redirect_uri }) {
+    const res = await api.post('/auth/auth0', { code, verifier, redirect_uri })
+    localStorage.setItem('authToken', res.data.access_token)
+    setUser(res.data.user)
+    return res.data.user
+  }
+
+  return { user, setUser, loading, login, register, logout, refreshUser, auth0Login }
 }
