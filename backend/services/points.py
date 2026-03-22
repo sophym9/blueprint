@@ -16,7 +16,7 @@ RANK_TITLES = [
     (300, "Cameron Faithful"),
     (500, "West Campus Elder"),
     (750, "Blue Devil Legend"),
-    (999, "Last Chapter Author"),
+    (999, "Blueprint Author"),
 ]
 
 
@@ -35,22 +35,23 @@ def calculate_points(memory_text: str, photo_url: str, audio_url: str, region: s
     if audio_url:
         earned += POINTS["add_audio"]
 
-    # First memory in this zone bonus
-    existing = db.query(Memory).filter(
-        Memory.region == region,
-        Memory.user_id != user_id
-    ).first()
-    if existing is None:
-        earned += POINTS["first_in_zone"]
+    if region:
+        existing = db.query(Memory).filter(
+            Memory.region == region,
+            Memory.user_id != user_id
+        ).first()
+        if existing is None:
+            earned += POINTS["first_in_zone"]
 
     return earned
 
 
 def award_points(user, earned: int, region: str, db: Session):
     user.memory_points = (user.memory_points or 0) + earned
-    zones = list(user.zones_unlocked or [])
-    if region not in zones:
-        zones.append(region)
-        user.zones_unlocked = zones
+    if region:
+        zones = list(user.zones_unlocked or [])
+        if region not in zones:
+            zones.append(region)
+            user.zones_unlocked = zones
     db.commit()
     db.refresh(user)

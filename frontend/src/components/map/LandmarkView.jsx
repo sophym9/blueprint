@@ -67,10 +67,12 @@ export default function LandmarkView({
     try {
       const data = {
         ...formData,
-        landmark_id: landmarkId,
-        region: landmark.region,
         pin_x: pendingPin.pin_x,
         pin_y: pendingPin.pin_y,
+      }
+      if (landmarkId && landmark) {
+        data.landmark_id = landmarkId
+        data.region = landmark.region
       }
       const newMemory = await createMemory(data)
       setSubmitError(null)

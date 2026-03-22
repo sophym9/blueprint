@@ -33,7 +33,7 @@ export default function LoadingScreen() {
           textShadow: '0 2px 8px rgba(0,48,135,0.2)',
         }}
       >
-        LAST CHAPTER
+        BLUEPRINT
       </h1>
 
       <p

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { MAP_W, MAP_H } from '../../lib/mapConfig'
 import { LANDMARKS } from '../../lib/landmarks'
+import MapPin from './MapPin'
 
 function heatColor(count) {
   if (count === 0) return '#4A90E2'
@@ -13,7 +14,10 @@ function heatRadius(count) {
   return 36 + Math.sqrt(count) * 20
 }
 
-export default function WorldView({ onSelectLandmark, memoryCounts = {} }) {
+export default function WorldView({
+  onSelectLandmark, onSelectMapPoint, onSelectMemory,
+  memoryCounts = {}, memories = [], pendingPin = null,
+}) {
   const [hovered, setHovered] = useState(null)
 
   const landmarks = Object.entries(LANDMARKS).map(([id, l]) => ({
@@ -24,7 +28,16 @@ export default function WorldView({ onSelectLandmark, memoryCounts = {} }) {
   }))
 
   return (
-    <div style={{ position: 'relative', width: `${MAP_W}px`, height: `${MAP_H}px`, flexShrink: 0 }}>
+    <div
+      style={{ position: 'relative', width: `${MAP_W}px`, height: `${MAP_H}px`, flexShrink: 0 }}
+      onClick={e => {
+        if (e.target.closest('.map-pin')) return
+        const rect = e.currentTarget.getBoundingClientRect()
+        const x = ((e.clientX - rect.left) / rect.width) * 100
+        const y = ((e.clientY - rect.top) / rect.height) * 100
+        onSelectMapPoint?.({ x, y })
+      }}
+    >
       <img
         src="/duke-campus-map.png"
         alt="Duke Campus Map"
@@ -143,6 +156,34 @@ export default function WorldView({ onSelectLandmark, memoryCounts = {} }) {
           )
         })}
       </svg>
+
+      {/* Memory pins */}
+      {memories.map(memory => (
+        <div key={memory.id} className="map-pin">
+          <MapPin
+            memory={memory}
+            onClick={e => { e.stopPropagation(); onSelectMemory?.(memory) }}
+          />
+        </div>
+      ))}
+
+      {/* Pending pin crosshair */}
+      {pendingPin && (
+        <div
+          style={{
+            position: 'absolute',
+            left: `${pendingPin.pin_x}%`,
+            top: `${pendingPin.pin_y}%`,
+            transform: 'translate(-50%, -50%)',
+            width: '20px',
+            height: '20px',
+            border: '2px solid #C9A84C',
+            borderRadius: '50%',
+            pointerEvents: 'none',
+            zIndex: 25,
+          }}
+        />
+      )}
     </div>
   )
 }

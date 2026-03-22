@@ -10,8 +10,8 @@ class Memory(Base):
 
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    landmark_id = Column(String, nullable=False)
-    region = Column(String, nullable=False)  # west | east | central
+    landmark_id = Column(String, nullable=True)
+    region = Column(String, nullable=True)
     pin_x = Column(Float, nullable=False)   # 0–100 %
     pin_y = Column(Float, nullable=False)   # 0–100 %
     memory_text = Column(Text, nullable=True)

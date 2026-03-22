@@ -21,7 +21,7 @@ run_migrations()
 # Create uploads directory
 os.makedirs(settings.uploads_dir, exist_ok=True)
 
-app = FastAPI(title="Last Chapter API", version="1.0.0")
+app = FastAPI(title="Blueprint API", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,

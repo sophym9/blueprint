@@ -13,8 +13,8 @@ class MemoryUpdate(BaseModel):
 
 
 class MemoryCreate(BaseModel):
-    landmark_id: str
-    region: str
+    landmark_id: Optional[str] = None
+    region: Optional[str] = None
     pin_x: float
     pin_y: float
     memory_text: Optional[str] = None
@@ -30,15 +30,15 @@ class MemoryResponse(BaseModel):
     user_id: str
     author_name: str
     author_avatar_url: Optional[str] = None
-    landmark_id: str
-    region: str
+    landmark_id: Optional[str] = None
+    region: Optional[str] = None
     pin_x: float
     pin_y: float
-    memory_text: Optional[str]
-    photo_url: Optional[str]
-    audio_url: Optional[str]
+    memory_text: Optional[str] = None
+    photo_url: Optional[str] = None
+    audio_url: Optional[str] = None
     song_url: Optional[str] = None
-    year_tag: Optional[str]
+    year_tag: Optional[str] = None
     is_public: bool
     created_at: datetime
     reactions: List[ReactionResponse] = []

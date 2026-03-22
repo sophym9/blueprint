@@ -113,7 +113,7 @@ export default function Login({ onLogin, onRegister }) {
           textAlign: 'center', marginBottom: '2px',
           textShadow: '0 0 32px rgba(201,168,76,0.35)',
         }}>
-          LAST CHAPTER
+          BLUEPRINT
         </h1>
         <p className="font-map" style={{
           color: '#6B7280', fontSize: '13px', fontStyle: 'italic',

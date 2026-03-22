@@ -84,6 +84,16 @@ export const LANDMARKS = {
   },
 }
 
+export function getNearestLandmark(x, y) {
+  return Object.entries(LANDMARKS)
+    .map(([id, landmark]) => ({
+      id,
+      ...landmark,
+      distance: Math.hypot(landmark.mapX - x, landmark.mapY - y),
+    }))
+    .sort((a, b) => a.distance - b.distance)[0]
+}
+
 export function getLandmarksForRegion(region) {
   return Object.entries(LANDMARKS)
     .filter(([, l]) => l.region === region)

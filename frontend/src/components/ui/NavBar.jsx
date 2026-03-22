@@ -32,7 +32,7 @@ export default function NavBar({ user, onLogout }) {
       >
         <Link to="/" style={{ textDecoration: 'none' }}>
           <span className="font-display" style={{ color: '#C9A84C', fontSize: '22px', letterSpacing: '0.08em' }}>
-            LAST CHAPTER
+            BLUEPRINT
           </span>
         </Link>
 

@@ -185,11 +185,11 @@ export default function MemoryModal({ memory, user, onClose, onAddReaction, onRe
             </div>
           </div>
 
-          {landmark && (
-            <p style={{ fontSize: '11px', color: '#9CA3AF', fontFamily: "'DM Sans', sans-serif", marginBottom: '12px' }}>
-              🗺 {landmark.fictionalName} · {landmark.realName}
-            </p>
-          )}
+          <p style={{ fontSize: '11px', color: '#9CA3AF', fontFamily: "'DM Sans', sans-serif", marginBottom: '12px' }}>
+            {landmark
+              ? `🗺 ${landmark.fictionalName} · ${landmark.realName}`
+              : '🗺 Duke Campus'}
+          </p>
 
           {/* Delete confirm */}
           {confirmDelete && (

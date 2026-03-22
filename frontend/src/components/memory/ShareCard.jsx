@@ -100,7 +100,7 @@ const ShareCard = forwardRef(function ShareCard({ memory, apiBase }, ref) {
             {/* Branding */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span style={{ fontSize: '13px', color: '#C9A84C', fontWeight: 700, letterSpacing: '0.08em' }}>
-                LAST CHAPTER
+                BLUEPRINT
               </span>
               <span style={{ fontSize: '12px', color: '#4B5563' }}>· Duke Class of 2026</span>
             </div>
